@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Chess Knight</string>
+    <string name="button_start">Start</string>
+    <string name="button_stop">Stop</string>
+    <string name="button_view">View</string>
+    <string name="button_clear">Clear</string>
+</resources>
