@@ -8,14 +8,18 @@ import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Прорисовывает шахматную доску, а так же выполняет отрисовку других элементов
  * Created by Art-_-master.
  */
 
-public class DarwRectView extends View{
+public class DarwRectView extends View implements  View.OnTouchListener{
 
     /** Объект Paint. Устанавливает параметры отрисовки */
     private Paint mPaint;
@@ -38,6 +42,9 @@ public class DarwRectView extends View{
     /** Объект Picture. Для сохранения шахматной доски в доп. слое */
     private Picture mBoardLayer;
 
+    /** Объект Picture. Для сохранения шахматной доски в доп. слое */
+    private Picture [][] mRectLayer;
+
     /** Высота текущего View */
     private  int mHeight;
 
@@ -47,8 +54,15 @@ public class DarwRectView extends View{
     /** Разрешает перерисокву Canvas */
     private boolean mReDraw=false;
 
+    private int rectWidth;
+    private int rectHeight;
+
     public DarwRectView(Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
+
+        this.setFocusableInTouchMode(true);
+        this.setFocusable(true);
+        this.setClickable(true);
 
         mNumCell =cell;
         mNumColumn =column;
@@ -57,6 +71,10 @@ public class DarwRectView extends View{
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
+        mBoardLayer = new Picture();
+
+        mRectLayer= new Picture[mNumCell][mNumColumn];
+
         mRect = new Rect();
 
         mRectsCoordinates = new int[cell][column][2];
@@ -64,6 +82,26 @@ public class DarwRectView extends View{
         mRectsCoordinates[0][0][0]=0;
 
         drawBoard(width, height);
+       /* this.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG, "onTouch entered");
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    Log.d(TAG, "ACTION_UP");
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        this.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int i=0;
+                i++;
+            }
+        }); */
     }
 
     @Override
@@ -72,12 +110,13 @@ public class DarwRectView extends View{
         canvas.drawPicture(mBoardLayer);
 
         if(mReDraw){
-            mRect. set(0, mHeight/ mNumColumn, mHeight/ mNumCell, 0);
-            mPaint.setColor(Color.GREEN);
-            //canvas.drawRect(mRect, mPaint);
-            RectF rectF= new RectF(mRect);
-            //rectF.set(mRect);
-            canvas.drawOval(rectF, mPaint);
+            for(int i = 0; i< mNumCell; i++) {
+                for (int i1 = 0; i1 < mNumColumn; i1++) {
+                    if(mRectLayer[i][i1]!=null){
+                        canvas.drawPicture(mRectLayer[i][i1]);
+                    }
+                }
+            }
         }
     }
 
@@ -89,10 +128,9 @@ public class DarwRectView extends View{
      * @param height - высота текущего View
      */
     private void drawBoard(int width, int height){
-            int rectWidth=height/ mNumColumn;
-            int rectHeight= height/ mNumCell;
+            rectWidth=height/ mNumColumn;
+            rectHeight= height/ mNumCell;
 
-            mBoardLayer = new Picture();
             Canvas canvas = mBoardLayer.beginRecording(width, height);
 
             int alternation;
@@ -137,9 +175,35 @@ public class DarwRectView extends View{
         mBoardLayer.endRecording();
         }
 
-    public void click(){
+    public void drawCircle(int arrayIndex1, int arrayIndex2, int color){
         mReDraw=true;
+        mRectLayer[arrayIndex1][arrayIndex2] = new Picture();
+        Canvas canvas = mRectLayer[arrayIndex1][arrayIndex2].beginRecording(mWidth, mHeight);
+        mRect.set(mRectsCoordinates[arrayIndex1][arrayIndex2][0],
+                mRectsCoordinates[arrayIndex1][arrayIndex2][1] + rectHeight,
+                mRectsCoordinates[arrayIndex1][arrayIndex2][0] + rectWidth,
+                mRectsCoordinates[arrayIndex1][arrayIndex2][1]);
+        mPaint.setColor(color);
+        RectF rectF= new RectF(mRect);
+        canvas.drawOval(rectF, mPaint);
+        mRectLayer[arrayIndex1][arrayIndex2].endRecording();
+
         invalidate();
     }
+    public void clearCircle(int arrayIndex1, int arrayIndex2, int color){
+        if(mRectLayer[arrayIndex1][arrayIndex2]!=null){
+            mRectLayer[arrayIndex1][arrayIndex2]=null;
+        }
+    }
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        Log.d(TAG, "onTouch entered");
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            Log.d(TAG, "ACTION_UP");
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -1,11 +1,10 @@
 package com.app.art_master.chessknight;
 
-import android.support.v7.app.ActionBar;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -104,7 +103,9 @@ public class ChessBoard extends AppCompatActivity {
                 startButton.setEnabled(false);
 
                 knightDriveThread= new KnightDriveThread();
-                boardSheess.click();
+                boardSheess.drawCircle(3, 1, Color.GREEN);
+                boardSheess.drawCircle(4, 2, Color.RED);
+                boardSheess.drawCircle(2, 3, Color.CYAN);
             }
         });
 
