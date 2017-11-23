@@ -67,13 +67,6 @@ public class ChessBoard extends AppCompatActivity {
                         chessBoard.getHeight(), chessBoard.getWidth());
                 boardSheess.setLayoutParams(chessBoard.getLayoutParams());
 
-                boardSheess.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return false;
-                    }
-                });
-
                 chessBoard.addView(boardSheess);
 
                 viewButton.setEnabled(false);
@@ -87,6 +80,7 @@ public class ChessBoard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 chessBoard.removeView(boardSheess);
+                boardSheess=null;
                 viewButton.setEnabled(true);
                 clearButton.setEnabled(false);
                 stopButton.setEnabled(false);
@@ -103,9 +97,10 @@ public class ChessBoard extends AppCompatActivity {
                 startButton.setEnabled(false);
 
                 knightDriveThread= new KnightDriveThread();
-                boardSheess.drawCircle(3, 1, Color.GREEN);
-                boardSheess.drawCircle(4, 2, Color.RED);
-                boardSheess.drawCircle(2, 3, Color.CYAN);
+                boardSheess.drawCircle(0, 0, Color.GREEN, "1");
+
+                //boardSheess.drawCircle(4, 2, Color.RED, "2");
+                //boardSheess.drawCircle(2, 3, Color.CYAN, "3");
             }
         });
 

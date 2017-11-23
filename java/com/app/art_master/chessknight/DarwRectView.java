@@ -1,16 +1,24 @@
 package com.app.art_master.chessknight;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import static android.content.ContentValues.TAG;
 
@@ -19,7 +27,7 @@ import static android.content.ContentValues.TAG;
  * Created by Art-_-master.
  */
 
-public class DarwRectView extends View implements  View.OnTouchListener{
+public class DarwRectView extends View{
 
     /** Объект Paint. Устанавливает параметры отрисовки */
     private Paint mPaint;
@@ -54,8 +62,9 @@ public class DarwRectView extends View implements  View.OnTouchListener{
     /** Разрешает перерисокву Canvas */
     private boolean mReDraw=false;
 
-    private int rectWidth;
-    private int rectHeight;
+    private int mRectSide;
+
+    private Bitmap knight;
 
     public DarwRectView(Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
@@ -63,28 +72,25 @@ public class DarwRectView extends View implements  View.OnTouchListener{
         this.setFocusableInTouchMode(true);
         this.setFocusable(true);
         this.setClickable(true);
+        this.setEnabled(true);
 
         mNumCell =cell;
         mNumColumn =column;
         mHeight=height;
         mWidth=width;
-        
-        if(mNumColumn<=mNumCell){
-            rectHeight= height/ mNumCell;   
-            rectWidth=rectHeight;
-        }else{
-            rectWidth=height/ mNumColumn;    
-            rectHeight= rectWidth;      
-        }       
-       
+
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        int textSize=50;
+        //setOnTouchListener(this);
+
+        int textSize=getResources().getDimensionPixelSize(R.dimen.fontCanvasText);
+
         if(mNumColumn<=mNumCell){
-            mPaint.setTextSize(textSize/rectHeight);
+            mRectSide = height/ mNumCell;
+            mPaint.setTextSize(textSize/ mNumCell);
         }else{
-            mPaint.setTextSize(textSize/rectHeight);
-        }  
-        
+            mRectSide =height/ mNumColumn;
+            mPaint.setTextSize(textSize/ mNumColumn);
+        }
 
         mBoardLayer = new Picture();
 
@@ -97,12 +103,30 @@ public class DarwRectView extends View implements  View.OnTouchListener{
         mRectsCoordinates[0][0][0]=0;
 
         drawBoard(width, height);
-       /* this.setOnTouchListener(new View.OnTouchListener() {
+
+        this.setOnTouchListener(new DarwRectView.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d(TAG, "onTouch entered");
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    Log.d(TAG, "ACTION_UP");
+                    int x=(int)event.getX();
+                    int y=(int)event.getY();
+                    if(x<=mWidth & y<=mHeight){
+                        for(int i = 0; i< mNumCell; i++) {
+                            for (int i1 = 0; i1 < mNumColumn; i1++) {
+                                if((x > mRectsCoordinates[i][i1][0] &
+                                        x <= mRectsCoordinates[i][i1][0]+mRectSide)
+                                & (y > mRectsCoordinates[i][i1][1] &
+                                        y<=mRectsCoordinates[i][i1][1]+mRectSide))  {
+
+                                    //ImageView image= new ImageView(getR);
+                                    //BitmapDrawable bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.knight, null));
+                                    // drawCircle(i, i1, Color.RED, "2");
+                                    knight=getBitmapFromAsset("knight.png");
+                                    invalidate();
+                                }
+                            }
+                        }
+                    }
                     return true;
                 } else {
                     return false;
@@ -110,13 +134,6 @@ public class DarwRectView extends View implements  View.OnTouchListener{
             }
         });
 
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int i=0;
-                i++;
-            }
-        }); */
     }
 
     @Override
@@ -133,6 +150,8 @@ public class DarwRectView extends View implements  View.OnTouchListener{
                 }
             }
         }
+        if(knight!=null) canvas.drawBitmap(knight,300,200,mPaint);
+
     }
 
     /**
@@ -149,11 +168,11 @@ public class DarwRectView extends View implements  View.OnTouchListener{
 
             for(int i = 0; i< mNumCell; i++) {
                 for (int i1 = 0; i1 < mNumColumn; i1++) {
-                    mRectsCoordinates[i][i1][0]= mRectsCoordinates[i][i1][0]+rectWidth*i1;
-                    mRectsCoordinates[i][i1][1]= mRectsCoordinates[i][i1][1]+rectHeight*i;
+                    mRectsCoordinates[i][i1][0]= mRectsCoordinates[i][i1][0]+ mRectSide *i1;
+                    mRectsCoordinates[i][i1][1]= mRectsCoordinates[i][i1][1]+ mRectSide *i;
                     mRect.set(mRectsCoordinates[i][i1][0],
-                            mRectsCoordinates[i][i1][1] + rectHeight,
-                            mRectsCoordinates[i][i1][0] + rectWidth,
+                            mRectsCoordinates[i][i1][1] + mRectSide,
+                            mRectsCoordinates[i][i1][0] + mRectSide,
                             mRectsCoordinates[i][i1][1]);
 
                     if (i%2==0) {
@@ -187,20 +206,20 @@ public class DarwRectView extends View implements  View.OnTouchListener{
         mBoardLayer.endRecording();
         }
 
-    public void drawCircle(int arrayIndex1, int arrayIndex2, int color){
+    public void drawCircle(int arrayIndex1, int arrayIndex2, int color, String text){
         mReDraw=true;
         mRectLayer[arrayIndex1][arrayIndex2] = new Picture();
         Canvas canvas = mRectLayer[arrayIndex1][arrayIndex2].beginRecording(mWidth, mHeight);
         mRect.set(mRectsCoordinates[arrayIndex1][arrayIndex2][0],
-                mRectsCoordinates[arrayIndex1][arrayIndex2][1] + rectHeight,
-                mRectsCoordinates[arrayIndex1][arrayIndex2][0] + rectWidth,
+                mRectsCoordinates[arrayIndex1][arrayIndex2][1] + mRectSide,
+                mRectsCoordinates[arrayIndex1][arrayIndex2][0] + mRectSide,
                 mRectsCoordinates[arrayIndex1][arrayIndex2][1]);
-        mPaint.setColor(Color.BLACK);
-        canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0],
-                        mRectsCoordinates[arrayIndex1][arrayIndex2][1]  mPaint);
         mPaint.setColor(color);
         RectF rectF= new RectF(mRect);
         canvas.drawOval(rectF, mPaint);
+        mPaint.setColor(Color.BLACK);
+        canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0]+(mRectSide /3),
+                mRectsCoordinates[arrayIndex1][arrayIndex2][1]+(mRectSide /1.4f),  mPaint);
         mRectLayer[arrayIndex1][arrayIndex2].endRecording();
 
         invalidate();
@@ -210,17 +229,16 @@ public class DarwRectView extends View implements  View.OnTouchListener{
             mRectLayer[arrayIndex1][arrayIndex2]=null;
         }
     }
-    
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        Log.d(TAG, "onTouch entered");
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            Log.d(TAG, "ACTION_UP");
-            //Bitmap bitmap = ((BitmapDrawable)image.getDrawable()).getBitmap();
-            return true;
-        } else {
-            return false;
+    private Bitmap getBitmapFromAsset(String strName)
+    {
+        AssetManager assetManager = getContext().getAssets();
+        InputStream stream = null;
+        try {
+            stream = assetManager.open(strName);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return BitmapFactory.decodeStream(stream);
     }
 }
