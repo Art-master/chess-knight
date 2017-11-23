@@ -68,8 +68,23 @@ public class DarwRectView extends View implements  View.OnTouchListener{
         mNumColumn =column;
         mHeight=height;
         mWidth=width;
-
+        
+        if(mNumColumn<=mNumCell){
+            rectHeight= height/ mNumCell;   
+            rectWidth=rectHeight;
+        }else{
+            rectWidth=height/ mNumColumn;    
+            rectHeight= rectWidth;      
+        }       
+       
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        int textSize=50;
+        if(mNumColumn<=mNumCell){
+            mPaint.setTextSize(textSize/rectHeight);
+        }else{
+            mPaint.setTextSize(textSize/rectHeight);
+        }  
+        
 
         mBoardLayer = new Picture();
 
@@ -128,9 +143,6 @@ public class DarwRectView extends View implements  View.OnTouchListener{
      * @param height - высота текущего View
      */
     private void drawBoard(int width, int height){
-            rectWidth=height/ mNumColumn;
-            rectHeight= height/ mNumCell;
-
             Canvas canvas = mBoardLayer.beginRecording(width, height);
 
             int alternation;
@@ -183,6 +195,9 @@ public class DarwRectView extends View implements  View.OnTouchListener{
                 mRectsCoordinates[arrayIndex1][arrayIndex2][1] + rectHeight,
                 mRectsCoordinates[arrayIndex1][arrayIndex2][0] + rectWidth,
                 mRectsCoordinates[arrayIndex1][arrayIndex2][1]);
+        mPaint.setColor(Color.BLACK);
+        canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0],
+                        mRectsCoordinates[arrayIndex1][arrayIndex2][1]  mPaint);
         mPaint.setColor(color);
         RectF rectF= new RectF(mRect);
         canvas.drawOval(rectF, mPaint);
@@ -195,12 +210,14 @@ public class DarwRectView extends View implements  View.OnTouchListener{
             mRectLayer[arrayIndex1][arrayIndex2]=null;
         }
     }
+    
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         Log.d(TAG, "onTouch entered");
         if (event.getAction() == MotionEvent.ACTION_UP) {
             Log.d(TAG, "ACTION_UP");
+            //Bitmap bitmap = ((BitmapDrawable)image.getDrawable()).getBitmap();
             return true;
         } else {
             return false;
