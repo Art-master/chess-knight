@@ -1,16 +1,17 @@
 package com.app.art_master.chessknight;
 
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
 
-public class ChessBoard extends AppCompatActivity {
+public class ChessBoard extends AppCompatActivity implements HandlerPermissionStart {
 
     FrameLayout chessBoard;
 
@@ -27,6 +28,9 @@ public class ChessBoard extends AppCompatActivity {
     Button clearButton;
 
     int [][] matrixPosition;
+
+    /**Handler для отслеживания действий паралельного потока*/
+    private Handler mHandler;
 
 
     public DarwRectView boardSheess;
@@ -52,7 +56,13 @@ public class ChessBoard extends AppCompatActivity {
         viewButton=(Button) findViewById(R.id.buttonView);
         clearButton=(Button) findViewById(R.id.buttonClear);
 
+        mHandler = new Handler(){
 
+            @Override
+            public void handleMessage(Message msg) {
+                startButton.setEnabled(true);
+            }
+        };
         viewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,8 +73,10 @@ public class ChessBoard extends AppCompatActivity {
                     cell =Integer.parseInt(textNumCell.getText().toString());
                 }
 
+
                 boardSheess =new DarwRectView(getApplicationContext(),null, column, cell,
                         chessBoard.getHeight(), chessBoard.getWidth());
+                boardSheess.setHandler(ChessBoard.this);
                 boardSheess.setLayoutParams(chessBoard.getLayoutParams());
 
                 chessBoard.addView(boardSheess);
@@ -72,7 +84,7 @@ public class ChessBoard extends AppCompatActivity {
                 viewButton.setEnabled(false);
                 clearButton.setEnabled(true);
                 stopButton.setEnabled(false);
-                startButton.setEnabled(true);
+                startButton.setEnabled(false);
             }
         });
 
@@ -96,8 +108,8 @@ public class ChessBoard extends AppCompatActivity {
                 stopButton.setEnabled(true);
                 startButton.setEnabled(false);
 
-                knightDriveThread= new KnightDriveThread();
-                boardSheess.drawCircle(0, 0, Color.GREEN, "1");
+                knightDriveThread= new KnightDriveThread(boardSheess);
+                //boardSheess.drawCircle(0, 0, Color.GREEN, "1");
 
                 //boardSheess.drawCircle(4, 2, Color.RED, "2");
                 //boardSheess.drawCircle(2, 3, Color.CYAN, "3");
@@ -114,7 +126,13 @@ public class ChessBoard extends AppCompatActivity {
 
             }
         });
+
+
     }
 
 
+    @Override
+    public Handler getHandler() {
+        return mHandler;
+    }
 }

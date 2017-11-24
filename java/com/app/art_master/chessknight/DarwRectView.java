@@ -1,5 +1,6 @@
 package com.app.art_master.chessknight;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -11,10 +12,14 @@ import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -27,7 +32,7 @@ import static android.content.ContentValues.TAG;
  * Created by Art-_-master.
  */
 
-public class DarwRectView extends View{
+public class DarwRectView extends View implements Animator.AnimatorListener{
 
     /** Объект Paint. Устанавливает параметры отрисовки */
     private Paint mPaint;
@@ -66,7 +71,13 @@ public class DarwRectView extends View{
 
     private Bitmap knight;
 
-    public DarwRectView(Context context, AttributeSet atr, int column, int cell, int height, int width) {
+    ImageView imageView;
+
+    Drawable drawable;
+
+    private HandlerPermissionStart mHandler;
+
+    public DarwRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
 
         this.setFocusableInTouchMode(true);
@@ -118,10 +129,18 @@ public class DarwRectView extends View{
                                 & (y > mRectsCoordinates[i][i1][1] &
                                         y<=mRectsCoordinates[i][i1][1]+mRectSide))  {
 
-                                    //ImageView image= new ImageView(getR);
-                                    //BitmapDrawable bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.knight, null));
-                                    // drawCircle(i, i1, Color.RED, "2");
                                     knight=getBitmapFromAsset("knight.png");
+
+                                    imageView = new ImageView(getContext());
+                                    imageView.setImageBitmap(knight);
+
+                                    drawable=imageView.getDrawable();
+                                    drawable.setBounds(mRectsCoordinates[i][i1][0]+mRectSide,
+                                            mRectsCoordinates[i][i1][1],
+                                            mRectsCoordinates[i][i1][0],
+                                            mRectsCoordinates[i][i1][1]+mRectSide);
+
+                                    mHandler.getHandler().sendEmptyMessage(0);
                                     invalidate();
                                 }
                             }
@@ -150,7 +169,10 @@ public class DarwRectView extends View{
                 }
             }
         }
-        if(knight!=null) canvas.drawBitmap(knight,300,200,mPaint);
+        //if(knight!=null) canvas.drawBitmap(knight,3,200,mPaint);
+        if(imageView!=null){
+            drawable.draw(canvas);
+        }
 
     }
 
@@ -240,5 +262,42 @@ public class DarwRectView extends View{
             e.printStackTrace();
         }
         return BitmapFactory.decodeStream(stream);
+    }
+
+    public void animateStepKnightStart(int moveSide){
+        if(imageView!=null){
+            //imageView.setAnimation(new TranslateAnimation(getContext(), null));
+            TranslateAnimation animation= new TranslateAnimation(imageView.getX(), imageView.getX()+200, imageView.getY(), imageView.getY());
+            animation.setDuration(1000);
+            //animation.setFillAfter(true);
+            imageView.startAnimation(animation);
+
+            int[] steps1 ={2, 2,  -2,  -2, 1, -1, 1, -1};
+            int[] steps2 ={-1, 1,  -1, 1, -2, -2, 2,  2};
+        }
+    }
+
+    @Override
+    public void onAnimationStart(Animator animation) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animation) {
+        //invalidate();
+    }
+
+    @Override
+    public void onAnimationCancel(Animator animation) {
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animator animation) {
+
+    }
+
+     public void setHandler(HandlerPermissionStart handler){
+         mHandler=handler;
     }
 }

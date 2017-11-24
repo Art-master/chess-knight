@@ -1,5 +1,7 @@
 package com.app.art_master.chessknight;
 
+import android.graphics.Color;
+
 /**
  * Created by Art-_-master on 21.11.2017.
  */
@@ -58,6 +60,12 @@ public class KnightDriveThread implements Runnable {
     private boolean control=true;
 
     private boolean[][][] matrixSteps = new boolean [this.column][this.cell][8];
+
+    KnightDriveThread(DarwRectView chessBoardObject){
+        //chessBoardObject.drawCircle(0, 0, Color.RED, "1");
+        chessBoardObject.animateStepKnightStart(0);
+    }
+
     @Override
     public void run() {
         while (true){
