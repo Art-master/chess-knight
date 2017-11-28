@@ -109,6 +109,7 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 startButton.setEnabled(false);
 
                 knightDriveThread= new KnightDriveThread(boardSheess);
+                //boardSheess.animateStepKnightStart(0, 0, 3, 5000L);
                 //boardSheess.drawCircle(0, 0, Color.GREEN, "1");
 
                 //boardSheess.drawCircle(4, 2, Color.RED, "2");

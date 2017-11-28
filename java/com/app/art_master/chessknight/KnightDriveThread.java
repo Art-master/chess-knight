@@ -63,7 +63,9 @@ public class KnightDriveThread implements Runnable {
 
     KnightDriveThread(DarwRectView chessBoardObject){
         //chessBoardObject.drawCircle(0, 0, Color.RED, "1");
-        chessBoardObject.animateStepKnightStart(0);
+        chessBoardObject.animateStepKnightStart(0, 0, 3, 5000L);
+        //chessBoardObject.invalidate();
+        //chessBoardObject.invalidate();
     }
 
     @Override

@@ -11,28 +11,23 @@ import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static android.content.ContentValues.TAG;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Прорисовывает шахматную доску, а так же выполняет отрисовку других элементов
  * Created by Art-_-master.
  */
 
-public class DarwRectView extends View implements Animator.AnimatorListener{
+public class DarwRectView extends View{
 
     /** Объект Paint. Устанавливает параметры отрисовки */
     private Paint mPaint;
@@ -75,7 +70,23 @@ public class DarwRectView extends View implements Animator.AnimatorListener{
 
     Drawable drawable;
 
+    public static final byte ANIMATION_UP=0;
+
+    public static final byte ANIMATION_LEFT=1;
+
+    public static final byte ANIMATION_DOWN=2;
+
+    public static final byte ANIMATION_RIGHT=3;
+
     private HandlerPermissionStart mHandler;
+
+    private int mArrayIndex1;
+
+    private int mArrayIndex2;
+
+    private int mDistance;
+
+    private boolean mTimerRun=false;
 
     public DarwRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
@@ -133,6 +144,10 @@ public class DarwRectView extends View implements Animator.AnimatorListener{
 
                                     imageView = new ImageView(getContext());
                                     imageView.setImageBitmap(knight);
+                                    imageView.setLeft(mRectsCoordinates[i][i1][0]+mRectSide);
+                                    imageView.setTop(mRectsCoordinates[i][i1][1]);
+                                    imageView.setRight(mRectsCoordinates[i][i1][0]);
+                                    imageView.setBottom(mRectsCoordinates[i][i1][1]+mRectSide);
 
                                     drawable=imageView.getDrawable();
                                     drawable.setBounds(mRectsCoordinates[i][i1][0]+mRectSide,
@@ -140,6 +155,8 @@ public class DarwRectView extends View implements Animator.AnimatorListener{
                                             mRectsCoordinates[i][i1][0],
                                             mRectsCoordinates[i][i1][1]+mRectSide);
 
+                                    mArrayIndex1 =i;
+                                    mArrayIndex2 =i1;
                                     mHandler.getHandler().sendEmptyMessage(0);
                                     invalidate();
                                 }
@@ -172,6 +189,9 @@ public class DarwRectView extends View implements Animator.AnimatorListener{
         //if(knight!=null) canvas.drawBitmap(knight,3,200,mPaint);
         if(imageView!=null){
             drawable.draw(canvas);
+        }
+        if(imageView!=null){
+            //imageView.draw(canvas);
         }
 
     }
@@ -264,40 +284,102 @@ public class DarwRectView extends View implements Animator.AnimatorListener{
         return BitmapFactory.decodeStream(stream);
     }
 
-    public void animateStepKnightStart(int moveSide){
-        if(imageView!=null){
-            //imageView.setAnimation(new TranslateAnimation(getContext(), null));
-            TranslateAnimation animation= new TranslateAnimation(imageView.getX(), imageView.getX()+200, imageView.getY(), imageView.getY());
-            animation.setDuration(1000);
-            //animation.setFillAfter(true);
-            imageView.startAnimation(animation);
+    public void animateStepKnightStart(int arrayIndex1, int arrayIndex2, int moveSide, Long animDuration){
+        if(drawable!=null) {
+            //TranslateAnimation animation= new TranslateAnimation(imageView.getX(), imageView.getX()+200, imageView.getY(), imageView.getY());
+            //animation.setDuration(1000);
+            //imageView.startAnimation(animation);
+            byte[] steps;
 
-            int[] steps1 ={2, 2,  -2,  -2, 1, -1, 1, -1};
-            int[] steps2 ={-1, 1,  -1, 1, -2, -2, 2,  2};
+            switch (moveSide) {
+                case ANIMATION_UP:
+                    //steps = {};
+                    break;
+                case ANIMATION_LEFT:
+
+                    break;
+                case ANIMATION_DOWN:
+
+                    break;
+                case ANIMATION_RIGHT:
+
+                    break;
+            }
+            //с какой скоростью должна двигаться фигура за 1 мс
+            int distance=(mRectSide*4)/(animDuration.intValue()/1000);
+            int knightPath=0;
+            //создаем таймер, который будет ждать столько, сколько длиться анимация загрузки
+            final Timer timer= new Timer();
+            TimerChess timerTask= new TimerChess(mArrayIndex1, mArrayIndex2, 1, 2, 1);
+
+            timer.schedule(timerTask, 1, 1);
+            }
+
+    }
+
+    public void setHandler(HandlerPermissionStart handler){
+         mHandler=handler;
+    }
+
+    private class TimerChess extends TimerTask {
+        private int mArrayInd1;
+        private int mArrayInd2;
+        private int mDistance;
+        private int mArrayIndexStop1;
+        private int mArrayIndexStop2;
+        private int mXposition;
+        private int mYposition;
+
+
+        TimerChess(int arrayIndex1, int arrayIndex2, int distance, int arrayIndexStop1, int arrayIndexStop2){
+            mArrayInd1 =arrayIndex1;
+            mArrayInd2 =arrayIndex2;
+            mDistance=distance;
+            mArrayIndexStop1=arrayIndexStop1;
+            mArrayIndexStop2=arrayIndexStop2;
+            mXposition=mRectsCoordinates[mArrayInd1][mArrayInd2][0];
+            mYposition=mRectsCoordinates[mArrayInd1][mArrayInd2][1];
+        }
+
+        @Override
+        public void run() {
+
+            drawable.setBounds(mXposition+mRectSide,
+                    mYposition,
+                    mXposition,
+                    mYposition+mRectSide);
+
+            if((mArrayIndexStop1-mArrayInd1%2)==1){
+                if(mXposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]){
+                    if(mArrayIndexStop1<mArrayInd1)mDistance=~mDistance;
+                    mXposition+=mDistance;
+                }else {
+                    if(mArrayIndexStop2<mArrayInd2 | mDistance<0)mDistance=~mDistance;
+                    mYposition+=mDistance;
+                    if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]==(mYposition+mDistance)){
+                        this.cancel();
+                    }
+                }
+
+            }
+            if((mArrayIndexStop2-mArrayInd2%2)==1){
+                if(mYposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]){
+                    if(mArrayIndexStop2<mArrayInd2)mDistance=~mDistance;
+                    mYposition+=mDistance;
+                }else {
+                    if(mArrayIndexStop1<mArrayInd1 | mDistance<0)mDistance=~mDistance;
+                    mXposition+=mDistance;
+                    if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]==(mXposition+mDistance)){
+                        this.cancel();
+                    }
+                }
+            }
+
+            postInvalidate();
         }
     }
 
-    @Override
-    public void onAnimationStart(Animator animation) {
-
-    }
-
-    @Override
-    public void onAnimationEnd(Animator animation) {
-        //invalidate();
-    }
-
-    @Override
-    public void onAnimationCancel(Animator animation) {
-
-    }
-
-    @Override
-    public void onAnimationRepeat(Animator animation) {
-
-    }
-
-     public void setHandler(HandlerPermissionStart handler){
-         mHandler=handler;
-    }
 }
+
+
+
