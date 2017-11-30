@@ -12,7 +12,7 @@ public class KnightDriveThread implements Runnable {
     /**
      *Массив предыдущих шагов коня
      */
-    private int [] lastKnightSteps = new int[this.column*this.cell+1];
+    private int [] lastKnightSteps;
     /**
      *Установка для массива при ходе коня
      */
@@ -32,7 +32,7 @@ public class KnightDriveThread implements Runnable {
     /**
      *Матрица шахматной доски
      */
-    private float[][][] matrixСhessboard = new float[this.column][this.cell][3];
+    private float[][][] matrixСhessboard;
 
     /**
      *Счетчик шагов коня
@@ -58,20 +58,25 @@ public class KnightDriveThread implements Runnable {
     private boolean chessboardDrawControl=true;
     private boolean controlTouchButtonLetsGo=false;
     private boolean control=true;
+    private DarwRectView mChessboard;
 
-    private boolean[][][] matrixSteps = new boolean [this.column][this.cell][8];
+    private boolean[][][] matrixSteps;
 
     KnightDriveThread(DarwRectView chessBoardObject){
-        //chessBoardObject.drawCircle(0, 0, Color.RED, "1");
-        chessBoardObject.animateStepKnightStart(0, 0, 3, 5000L);
-        //chessBoardObject.invalidate();
-        //chessBoardObject.invalidate();
+        //chessBoardObject.animateStepKnightStart(0, 0, 3, 5000L);
+        mChessboard=chessBoardObject;
+        column=chessBoardObject.mNumCell;
+        cell=chessBoardObject.mNumColumn;
+
+        matrixСhessboard= new float[column][cell][3];
+        lastKnightSteps= new int[column*cell+1];
+        matrixSteps = new boolean [column][cell][8];
     }
 
     @Override
     public void run() {
         while (true){
-
+            present();
         }
     }
 
@@ -82,65 +87,65 @@ public class KnightDriveThread implements Runnable {
      */
     public void present() {
 
-        if(this.knightMoveControl){
+        if(knightMoveControl){
             int controlBackStep = 0;
             int forward =0;
-            this.matrixСhessboard[this.initArray1][this.initArray2][2]=1;
-            while(this.control){
+            matrixСhessboard[initArray1][initArray2][2]=1;
+            while(control){
 
                 //находим доступные ходы
-                forward = this.moveKnightInCell(controlBackStep);
-                //this.count=0;
+                forward = moveKnightInCell(controlBackStep);
+                //count=0;
 
                 // countFalse Разрешает ход назад, если ходить некуда
                 controlBackStep = 0;
                 interrupt: for (int i = 0; i <=8; i++) {
-                    if (this.matrixSteps[this.initArray1][this.initArray2][i]) {
+                    if (matrixSteps[initArray1][initArray2][i]) {
                         i=forward;
 
                         // записываем координаты следующей точки
                         switch (i) {
                             case 0:
-                                this.initArray1 += 2;
-                                this.initArray2 -= 1;
+                                initArray1 += 2;
+                                initArray2 -= 1;
                                 actionToStepKnight(i);
                                 break interrupt;
                             case 1:
-                                this.initArray1 += 2;
-                                this.initArray2 += 1;
+                                initArray1 += 2;
+                                initArray2 += 1;
                                 actionToStepKnight(i);
                                 break interrupt;
                             case 2:
-                                this.initArray1 -= 2;
-                                this.initArray2 -= 1;
+                                initArray1 -= 2;
+                                initArray2 -= 1;
                                 actionToStepKnight(i);
                                 break interrupt;
 
                             case 3:
-                                this.initArray1 -= 2;
-                                this.initArray2 += 1;
+                                initArray1 -= 2;
+                                initArray2 += 1;
                                 actionToStepKnight(i);
                                 break interrupt;
 
                             case 4:
-                                this.initArray1 += 1;
-                                this.initArray2 -= 2;
+                                initArray1 += 1;
+                                initArray2 -= 2;
                                 actionToStepKnight(i);
                                 break interrupt;
 
                             case 5:
-                                this.initArray1 -= 1;
-                                this.initArray2 -= 2;
+                                initArray1 -= 1;
+                                initArray2 -= 2;
                                 actionToStepKnight(i);
                                 break interrupt;
                             case 6:
-                                this.initArray1 += 1;
-                                this.initArray2 += 2;
+                                initArray1 += 1;
+                                initArray2 += 2;
                                 actionToStepKnight(i);
                                 break interrupt;
                             case 7:
-                                this.initArray1 -= 1;
-                                this.initArray2 += 2;
+                                initArray1 -= 1;
+                                initArray2 += 2;
                                 actionToStepKnight(i);
                                 break interrupt;
 
@@ -153,17 +158,17 @@ public class KnightDriveThread implements Runnable {
                         if (controlBackStep == 8) {
 
                             // oбщую длительность ходов уменьшаем на единицу
-                            this.pathKnight--;
+                            pathKnight--;
 
                             // Затираем следы (текущую ячейку обнуляем, для
                             // возможности альтернативного хода)
-                            if ((int) this.matrixСhessboard[this.initArray1][this.initArray2][2] !=1) {
-                                this.matrixСhessboard[this.initArray1][this.initArray2][2] = 0;
-                                for (int i1 = 0; i1 <= this.column - 1; i1++) {
-                                    for (int i2 = 0; i2 <= this.cell - 1; i2++) {
-                                        if ((int) this.matrixСhessboard[i1][i2][2] == this.pathKnight) {
-                                            this.initArray1 = i1;
-                                            this.initArray2 = i2;
+                            if ((int) matrixСhessboard[initArray1][initArray2][2] !=1) {
+                                matrixСhessboard[initArray1][initArray2][2] = 0;
+                                for (int i1 = 0; i1 <= column - 1; i1++) {
+                                    for (int i2 = 0; i2 <= cell - 1; i2++) {
+                                        if ((int) matrixСhessboard[i1][i2][2] == pathKnight) {
+                                            initArray1 = i1;
+                                            initArray2 = i2;
                                         }
                                     }
                                 }
@@ -177,21 +182,13 @@ public class KnightDriveThread implements Runnable {
 
                 }
             }
-            this.knightMoveControl=false;
+            drawMoveKnight();
+            knightMoveControl=false;
         }
-        /*this.chessboard();
-        if(this.chessboardDrawControl==true){
-            this.chessboardDraw();
-            this.chessboardDrawControl=false;
-        }
-
-        this.count=1;
-        if(this.countSetColorOneRect==true){
-            this.setColorOneRect();
-        }
-        else{
-            this.setPlacingKnight();
-        } */
+            count=1;
+            knightMoveControl=true;
+            initArray1=mChessboard.getArrayInitIndex(1);
+            initArray2=mChessboard.getArrayInitIndex(2);
     }
 
     /**
@@ -203,64 +200,16 @@ public class KnightDriveThread implements Runnable {
      *            текущий номер хода коня
      */
     public void actionToStepKnight(int i){
-        this.lastKnightSteps[this.pathKnight]=i;
+        lastKnightSteps[pathKnight]=i;
         // Метка пути(указывает текущее местоположение коня) Увеличиваем при каждом шаге
-        this.pathKnight++;
+        pathKnight++;
         //Записываем путь коня на шахматной матрице
-        this.matrixСhessboard[this.initArray1][this.initArray2][2]=this.pathKnight;
+        matrixСhessboard[initArray1][initArray2][2]=pathKnight;
         //Если путь больше произведения ячеек, закрываем счетчик
-        if (this.pathKnight==(this.cell*this.column-1)) {
-            this.control = false;
+        if (pathKnight==(cell*column-1)) {
+            control = false;
         }
     }
-
-    /**
-     * <paint>
-     * Ловим касания пользователя
-     * </paint>
-     */
-    /*
-    public void setPlacingKnight() {
-        List<TouchEvent> touchEvents = game.getInput().getTouchEvents();
-
-        int len = touchEvents.size();
-        for(int i = 0; i < len; i++) {
-            TouchEvent event = touchEvents.get(i);
-
-
-            if(event.type == TouchEvent.TOUCH_DOWN) {
-                if(this.controlTouchButtonLetsGo==false){
-                    for (int i2 = 0; i2 <= this.matrixСhessboard.length-1; i2++) {
-                        for (int i3 = 0; i3 <= this.matrixСhessboard[i2].length-1; i3++) {
-                            float valueX=(float)this.matrixСhessboard[i2][i3][0];
-                            float valueY=(float)this.matrixСhessboard[i2][i3][1];
-                            if(inBounds(event, valueX,  valueY, this.length, this.length)){
-                                this.SetColorOneRectX=valueX;
-                                this.SetColorOneRectY=valueY;
-                                this.countSetColorOneRect=true;
-                                this.g.drawRect(AndroidGame.y+20, 20, this.infoPanelWidth-40 ,AndroidGame.y/6, Color.YELLOW);
-                                float textSize=60;
-                                this.g.drawText("Let's go", AndroidGame.y+(this.infoPanelWidth/2), 80, textSize, Color.BLACK, Paint.Align.CENTER);
-                                this.controlTouchButtonLetsGo=true;
-                                this.initArray1=i2;
-                                this.initArray2=i3;
-
-                            }
-
-                        }
-
-                    }
-                }else{
-                    if(inBounds(event, AndroidGame.y+20, 20, this.infoPanelWidth-40, AndroidGame.y/6)){
-                        this.knightMoveControl=true;
-                        this.g.drawRect(AndroidGame.y+10, 10,this.infoPanelWidth-20 ,AndroidGame.y-20 , Color.DKGRAY);
-
-                    }
-                }
-            }
-        }
-    }
-*/
 
     private int moveKnightInCell(int controlBackStep) {
         int[] steps1 ={2, 2,  -2,  -2, 1, -1, 1, -1};
@@ -268,37 +217,37 @@ public class KnightDriveThread implements Runnable {
         int a = 0;
         int t = 0;
         int valuePathes = 8;
-        for (int y= 0; y <= this.column-1; y++) {
-            for (int y2 = 0; y2 <= this.cell-1; y2++) {
+        for (int y= 0; y <= column-1; y++) {
+            for (int y2 = 0; y2 <= cell-1; y2++) {
                 for (int y3 = 0; y3 <= 7; y3++) {
-                    this.matrixSteps[y][y2][y3] = true;
+                    matrixSteps[y][y2][y3] = true;
                 }
             }
         }
         for (int i = 0; i <= 7; i++) {
-            if (this.initArray1 + steps1[i] > this.column - 1 || this.initArray1 + steps1[i]<0 ) {
-                this.matrixSteps[this.initArray1][this.initArray2][i] = false;
-            }else if (this.initArray2 + steps2[i]  < 0  ||  this.initArray2 + steps2[i]> this.cell - 1) {
-                this.matrixSteps[this.initArray1][this.initArray2][i] = false;
-            }else if ((int) this.matrixСhessboard[this.initArray1 + steps1[i]][this.initArray2 +steps2[i]][2] > 0) {
-                this.matrixSteps[this.initArray1][this.initArray2][i] = false;
+            if (initArray1 + steps1[i] > column - 1 || initArray1 + steps1[i]<0 ) {
+                matrixSteps[initArray1][initArray2][i] = false;
+            }else if (initArray2 + steps2[i]  < 0  ||  initArray2 + steps2[i]> cell - 1) {
+                matrixSteps[initArray1][initArray2][i] = false;
+            }else if ((int) matrixСhessboard[initArray1 + steps1[i]][initArray2 +steps2[i]][2] > 0) {
+                matrixSteps[initArray1][initArray2][i] = false;
             }else if (controlBackStep==8) {
-                int q = this.lastKnightSteps[this.pathKnight];
-                this.matrixSteps[this.initArray1][this.initArray2][q] = false;
+                int q = lastKnightSteps[pathKnight];
+                matrixSteps[initArray1][initArray2][q] = false;
             }
 
             //Отправляеем коня в будущее
-            else if (this.matrixSteps[this.initArray1][this.initArray2][i]) {
-                this.localInit1 = this.initArray1 + steps1[i];
-                this.localInit2 = this.initArray2 + steps2[i];
+            else if (matrixSteps[initArray1][initArray2][i]) {
+                localInit1 = initArray1 + steps1[i];
+                localInit2 = initArray2 + steps2[i];
                 for (int i2 = 0; i2 <= 7; i2++) {
-                    if (this.localInit1 + steps1[i2] > this.column - 1 || this.localInit1 + steps1[i2]<0  ) {
-                        this.matrixSteps[this.localInit1][this.localInit2][i2] = false;
-                    } else if (this.localInit2 + steps2[i2]> this.cell - 1  || this.localInit2 + steps2[i2]  < 0  ) {
-                        this.matrixSteps[this.localInit1][this.localInit2][i2] = false;
-                    } else if ((int) this.matrixСhessboard[this.localInit1 + steps1[i2]][this.localInit2 +steps2[i2]][2] > 0) {
-                        this.matrixSteps[localInit1][localInit2][i2] = false;
-                    }else if (this.matrixSteps[localInit1][localInit2][i2]) {
+                    if (localInit1 + steps1[i2] > column - 1 || localInit1 + steps1[i2]<0  ) {
+                        matrixSteps[localInit1][localInit2][i2] = false;
+                    } else if (localInit2 + steps2[i2]> cell - 1  || localInit2 + steps2[i2]  < 0  ) {
+                        matrixSteps[localInit1][localInit2][i2] = false;
+                    } else if ((int) matrixСhessboard[localInit1 + steps1[i2]][localInit2 +steps2[i2]][2] > 0) {
+                        matrixSteps[localInit1][localInit2][i2] = false;
+                    }else if (matrixSteps[localInit1][localInit2][i2]) {
                         t++;
                     }
                 }
@@ -307,11 +256,43 @@ public class KnightDriveThread implements Runnable {
                 valuePathes = t;
                 a=i;
             } else {
-                //this.matrixSteps[this.localInit1][this.localInit2][i] = false;
+                //matrixSteps[localInit1][localInit2][i] = false;
             }
             t=0;
         }
         return a;
 
+    }
+
+    /**
+     * <p>
+     * Прорисовываем путь коня
+     * </p>
+     *
+     */
+    private void drawMoveKnight() {
+        int path=1;
+        int lastIndex1=mChessboard.getArrayInitIndex(1);
+        int lastIndex2=mChessboard.getArrayInitIndex(2);
+
+        //mChessboard.drawCircle(lastIndex1, lastIndex2, Color.RED, path+"");
+        path=2;
+     /*   for (int i1 = 0; i1 <= column-1; i1++) {
+            reset:for (int i2 = 0; i2 <= cell-1; i2++) {
+                if(matrixСhessboard[i1][i2][2]==path){
+                    mChessboard.animateStepKnightStart(lastIndex1, lastIndex2, i1, i2);
+                    while(true) {
+                        if (!mChessboard.isAnimationStop()) {
+                            i1=0;
+                            lastIndex1=i1;
+                            lastIndex2=i2;
+                            path++;
+                            break reset;
+                        }
+                    }
+                }
+
+            }
+        } */
     }
 }

@@ -39,10 +39,10 @@ public class DarwRectView extends View{
     //private Ova mCircle;
 
     /** Количество столбцов в доске */
-    private int mNumColumn;
+    public int mNumColumn;
 
     /** Количество линий в доске */
-    private int mNumCell;
+    public int mNumCell;
 
     /** Координаты полей для хода */
     public static int [][][] mRectsCoordinates;
@@ -76,12 +76,11 @@ public class DarwRectView extends View{
     
     /**  Позиция коня в матрице координат */
     private int mArrayIndex2;
-    
-     /** */
-    private int mDistance;
+
     
     /** Запущена ли анимация в настоящее время*/
     private boolean mAnimateRun=false;
+
 
     public DarwRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
@@ -185,14 +184,12 @@ public class DarwRectView extends View{
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         //рисут основной слой с шахматной доской
         if(mBoardLayer!=null){
         canvas.drawPicture(mBoardLayer);
         }
 
         //рисут дополнительные слои с метками номера хода шахматного коня
-        if(mReDraw){
             for(int i = 0; i< mNumCell; i++) {
                 for (int i1 = 0; i1 < mNumColumn; i1++) {
                     if(mRectLayer[i][i1]!=null){
@@ -200,7 +197,6 @@ public class DarwRectView extends View{
                     }
                 }
             }
-        }
         
         //Рисует шахматного коня
         if(drawable!=null){
@@ -313,7 +309,7 @@ public class DarwRectView extends View{
     }
     
     /**
-     * Получает битавую карту из ресурса 
+     * Получает битовую карту из ресурса
      *
      * @param strName  - имя ресурса в каталоге Assets
      * @return  битовая карта
@@ -331,23 +327,27 @@ public class DarwRectView extends View{
     }
     
     /**
-     * Получает битавую карту из ресурса 
      *
-     * @param arrayIndex1  - координата 1 метки в матрице
-     * @param arrayIndex2 - координата 2 метки в матрице
-     * @param animDuration - длительность анимации
-     * @teturn запущена ли анимация в данный момент или нет
+     *
+     * @param arrayIndex1  - начальная координата 1 метки в матрице
+     * @param arrayIndex2 - начальная координата 2 метки в матрице
+     * @param arrayIndexStop1 - конечная координата 1 метки в матрице
+     * @param arrayIndexStop2 - конечная координата 2 метки в матрице
+     * @return запущена ли анимация в данный момент или нет
      */    
-    public boolean animateStepKnightStart(int arrayIndex1, int arrayIndex2, int moveSide, Long animDuration){
-        if(drawable!=null) {
+    public void animateStepKnightStart(int arrayIndex1, int arrayIndex2, int arrayIndexStop1, int arrayIndexStop2){
+        if(drawable!=null & !mAnimateRun) {
             mAnimateRun=true;
             //создаем таймер, который будет двигать фигуру на n пикселей 
             final Timer timer= new Timer();
             //Задача для таймера
-            TimerChess timerTask= new TimerChess(mArrayIndex1, mArrayIndex2, 1, 2, 1);
+            //TimerChess timerTask= new TimerChess(mArrayIndex1, mArrayIndex2, 1, 2, 1);
+            TimerChess timerTask= new TimerChess(arrayIndex1, arrayIndex2, 1, arrayIndexStop1, arrayIndexStop2);
             //Устанавлиаеим таймеру задачу, которая будет выполняться каждые n милисекунд
             timer.schedule(timerTask, 1, 1);
             }
+    }
+    public boolean isAnimationStop(){
         return mAnimateRun;
     }
     
@@ -394,28 +394,30 @@ public class DarwRectView extends View{
             
             if((mArrayIndexStop1-mArrayInd1%2)==1){
                 if(mXposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]){
-                    if(mArrayIndexStop1<mArrayInd1 & mDistance>0)mDistance=~mDistance;
+                    if((mArrayIndexStop2<mArrayInd2 & mDistance>0) || (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
                     mXposition+=mDistance;
                 }else {
-                    if(mArrayIndexStop2<mArrayInd2 & mDistance>0)mDistance=~mDistance;
+                    if((mArrayIndexStop1<mArrayInd1 & mDistance>0) || (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
                     mYposition+=mDistance;
                     if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]==(mYposition+mDistance)){
                         mAnimateRun=false;
                         this.cancel();
-                      }
+                        //timer.cancel();
+                        }
                 }
 
-            }
+            } else
             if((mArrayIndexStop2-mArrayInd2%2)==1){
                 if(mYposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]){
-                    if(mArrayIndexStop2<mArrayInd2 & mDistance>0)mDistance=~mDistance;
+                    if((mArrayIndexStop1<mArrayInd1 & mDistance>0) || (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
                     mYposition+=mDistance;
                 }else {
-                    if(mArrayIndexStop1<mArrayInd1 & mDistance>0)mDistance=~mDistance;
+                    if((mArrayIndexStop2<mArrayInd2 & mDistance>0) || (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
                     mXposition+=mDistance;
                     if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]==(mXposition+mDistance)){
                         mAnimateRun=false;
                         this.cancel();
+                        //timer.cancel();
                     }
                 }
             }
@@ -423,6 +425,15 @@ public class DarwRectView extends View{
             postInvalidate();
         }
 
+    }
+
+    public int getArrayInitIndex(int indexNum){
+        if(indexNum==1){
+            return mArrayIndex1;
+        }else if(indexNum==2){
+            return mArrayIndex2;
+        }
+        return 0;
     }
 
 }
