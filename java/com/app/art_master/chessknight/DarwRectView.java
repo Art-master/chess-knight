@@ -59,34 +59,29 @@ public class DarwRectView extends View{
     /** Ширина текущего View */
     private  int mWidth;
 
-    /** Разрешает перерисокву Canvas */
-    private boolean mReDraw=false;
-
+     /** Сторона квадрата шахматной доски */
     private int mRectSide;
 
-    private Bitmap knight;
+    /** Изображение */
+    private ImageView imageView;
 
-    ImageView imageView;
+     /** Ресурс из изображения. Для рисования */
+    private Drawable drawable;
 
-    Drawable drawable;
-
-    public static final byte ANIMATION_UP=0;
-
-    public static final byte ANIMATION_LEFT=1;
-
-    public static final byte ANIMATION_DOWN=2;
-
-    public static final byte ANIMATION_RIGHT=3;
-
+     /** Задатчик для общения двух объектов*/
     private HandlerPermissionStart mHandler;
 
+     /** Позиция коня в матрице координат */
     private int mArrayIndex1;
-
+    
+    /**  Позиция коня в матрице координат */
     private int mArrayIndex2;
-
+    
+     /** */
     private int mDistance;
-
-    private boolean mTimerRun=false;
+    
+    /** Запущена ли анимация в настоящее время*/
+    private boolean mAnimateRun=false;
 
     public DarwRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
@@ -102,10 +97,11 @@ public class DarwRectView extends View{
         mWidth=width;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        //setOnTouchListener(this);
 
+        //вычисляем размер текста
         int textSize=getResources().getDimensionPixelSize(R.dimen.fontCanvasText);
 
+       //Устанавливаем размер текста и размер ячейки шахм. доски
         if(mNumColumn<=mNumCell){
             mRectSide = height/ mNumCell;
             mPaint.setTextSize(textSize/ mNumCell);
@@ -114,6 +110,7 @@ public class DarwRectView extends View{
             mPaint.setTextSize(textSize/ mNumColumn);
         }
 
+        //объявляем переменные
         mBoardLayer = new Picture();
 
         mRectLayer= new Picture[mNumCell][mNumColumn];
@@ -124,40 +121,54 @@ public class DarwRectView extends View{
 
         mRectsCoordinates[0][0][0]=0;
 
+        //рисуем шахматную доску
         drawBoard(width, height);
 
+        //устанавливаем слушателя, который при касании какой-то ячейки шахматной доски
+        //ставит туда коня и сохраняет координаты этой ячейки
         this.setOnTouchListener(new DarwRectView.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                //если пользователь коснуля экрана и убрал палец
                 if (event.getAction() == MotionEvent.ACTION_UP) {
+                    //сохраняем координаты
                     int x=(int)event.getX();
                     int y=(int)event.getY();
+                    //выполняем вычисления, если касания произошли не за областью доски
                     if(x<=mWidth & y<=mHeight){
+                        //перебираем матрицу координат ячеек
                         for(int i = 0; i< mNumCell; i++) {
                             for (int i1 = 0; i1 < mNumColumn; i1++) {
+                                //если координаты касания пользователя в пределах ячейки, устанавливаем туда коня
                                 if((x > mRectsCoordinates[i][i1][0] &
                                         x <= mRectsCoordinates[i][i1][0]+mRectSide)
                                 & (y > mRectsCoordinates[i][i1][1] &
                                         y<=mRectsCoordinates[i][i1][1]+mRectSide))  {
-
-                                    knight=getBitmapFromAsset("knight.png");
-
+                                   
+                                    //получаем битовую карту из изображения
+                                    Bitmap knight=getBitmapFromAsset("knight.png");
+                                    //создаем изображение из битовой карты изображения
                                     imageView = new ImageView(getContext());
                                     imageView.setImageBitmap(knight);
+                                     //устанавливаем позицию изображения
                                     imageView.setLeft(mRectsCoordinates[i][i1][0]+mRectSide);
                                     imageView.setTop(mRectsCoordinates[i][i1][1]);
                                     imageView.setRight(mRectsCoordinates[i][i1][0]);
                                     imageView.setBottom(mRectsCoordinates[i][i1][1]+mRectSide);
-
+                                    //получаем ресурс из изображения
+                                    //устанавливаем границы
                                     drawable=imageView.getDrawable();
                                     drawable.setBounds(mRectsCoordinates[i][i1][0]+mRectSide,
                                             mRectsCoordinates[i][i1][1],
                                             mRectsCoordinates[i][i1][0],
                                             mRectsCoordinates[i][i1][1]+mRectSide);
 
+                                    //сохраняем текущую позицию коня
                                     mArrayIndex1 =i;
                                     mArrayIndex2 =i1;
+                                    //активируем Handler (активируем кнопку старт)
                                     mHandler.getHandler().sendEmptyMessage(0);
+                                    //перерисовывам все вместе
                                     invalidate();
                                 }
                             }
@@ -175,8 +186,12 @@ public class DarwRectView extends View{
     @Override
     protected void onDraw(Canvas canvas) {
 
+        //рисут основной слой с шахматной доской
+        if(mBoardLayer!=null){
         canvas.drawPicture(mBoardLayer);
+        }
 
+        //рисут дополнительные слои с метками номера хода шахматного коня
         if(mReDraw){
             for(int i = 0; i< mNumCell; i++) {
                 for (int i1 = 0; i1 < mNumColumn; i1++) {
@@ -186,14 +201,11 @@ public class DarwRectView extends View{
                 }
             }
         }
-        //if(knight!=null) canvas.drawBitmap(knight,3,200,mPaint);
-        if(imageView!=null){
+        
+        //Рисует шахматного коня
+        if(drawable!=null){
             drawable.draw(canvas);
         }
-        if(imageView!=null){
-            //imageView.draw(canvas);
-        }
-
     }
 
     /**
@@ -204,10 +216,12 @@ public class DarwRectView extends View{
      * @param height - высота текущего View
      */
     private void drawBoard(int width, int height){
+           //Создает новый слой, записывая в нем все последующие действия
             Canvas canvas = mBoardLayer.beginRecording(width, height);
 
             int alternation;
-
+        
+            //В цикле происходит построение шаматного поля с записью координат в матрицу
             for(int i = 0; i< mNumCell; i++) {
                 for (int i1 = 0; i1 < mNumColumn; i1++) {
                     mRectsCoordinates[i][i1][0]= mRectsCoordinates[i][i1][0]+ mRectSide *i1;
@@ -217,6 +231,7 @@ public class DarwRectView extends View{
                             mRectsCoordinates[i][i1][0] + mRectSide,
                             mRectsCoordinates[i][i1][1]);
 
+                   //Определяет цвет шахматных полей
                     if (i%2==0) {
                         alternation=1;
                     }else{
@@ -241,37 +256,68 @@ public class DarwRectView extends View{
                             break;
                     }
 
-                    // рисуем прямоугольник из объекта mRect
+                    // рисует прямоугольник
                     canvas.drawRect(mRect, mPaint);
                 }
             }
+        //завершает запись слоя
         mBoardLayer.endRecording();
         }
 
+      /**
+     * Рисует метку с номером хода коня по доске
+     *
+     * @param arrayIndex1  - координата 1 метки в матрице
+     * @param arrayIndex2 - координата 2 метки в матрице
+     * @param color - цвет метки 
+     * @param text - текст внутри метки
+     */  
     public void drawCircle(int arrayIndex1, int arrayIndex2, int color, String text){
-        mReDraw=true;
+
+        //инициализирует матрицу слоев
         mRectLayer[arrayIndex1][arrayIndex2] = new Picture();
+        //начало записи слоя
         Canvas canvas = mRectLayer[arrayIndex1][arrayIndex2].beginRecording(mWidth, mHeight);
+        //устанавливаем границы примоугольника
         mRect.set(mRectsCoordinates[arrayIndex1][arrayIndex2][0],
                 mRectsCoordinates[arrayIndex1][arrayIndex2][1] + mRectSide,
                 mRectsCoordinates[arrayIndex1][arrayIndex2][0] + mRectSide,
                 mRectsCoordinates[arrayIndex1][arrayIndex2][1]);
+        //цвет примоугольника
         mPaint.setColor(color);
         RectF rectF= new RectF(mRect);
+        //рисуем овал
         canvas.drawOval(rectF, mPaint);
+        //черный текст для текста
         mPaint.setColor(Color.BLACK);
+        //рисуем текст
         canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0]+(mRectSide /3),
                 mRectsCoordinates[arrayIndex1][arrayIndex2][1]+(mRectSide /1.4f),  mPaint);
+        //конец записи слоя
         mRectLayer[arrayIndex1][arrayIndex2].endRecording();
-
+        //разрешаем перерисоквку
         invalidate();
     }
+    
+    /**
+     * Удаляет метку с номером хода коня по доске
+     *
+     * @param arrayIndex1  - координата 1 метки в матрице
+     * @param arrayIndex2 - координата 2 метки в матрице
+     * @param color - цвет метки 
+     */   
     public void clearCircle(int arrayIndex1, int arrayIndex2, int color){
         if(mRectLayer[arrayIndex1][arrayIndex2]!=null){
             mRectLayer[arrayIndex1][arrayIndex2]=null;
         }
     }
-
+    
+    /**
+     * Получает битавую карту из ресурса 
+     *
+     * @param strName  - имя ресурса в каталоге Assets
+     * @return  битовая карта
+     */   
     private Bitmap getBitmapFromAsset(String strName)
     {
         AssetManager assetManager = getContext().getAssets();
@@ -283,44 +329,41 @@ public class DarwRectView extends View{
         }
         return BitmapFactory.decodeStream(stream);
     }
-
-    public void animateStepKnightStart(int arrayIndex1, int arrayIndex2, int moveSide, Long animDuration){
+    
+    /**
+     * Получает битавую карту из ресурса 
+     *
+     * @param arrayIndex1  - координата 1 метки в матрице
+     * @param arrayIndex2 - координата 2 метки в матрице
+     * @param animDuration - длительность анимации
+     * @teturn запущена ли анимация в данный момент или нет
+     */    
+    public boolean animateStepKnightStart(int arrayIndex1, int arrayIndex2, int moveSide, Long animDuration){
         if(drawable!=null) {
-            //TranslateAnimation animation= new TranslateAnimation(imageView.getX(), imageView.getX()+200, imageView.getY(), imageView.getY());
-            //animation.setDuration(1000);
-            //imageView.startAnimation(animation);
-            byte[] steps;
-
-            switch (moveSide) {
-                case ANIMATION_UP:
-                    //steps = {};
-                    break;
-                case ANIMATION_LEFT:
-
-                    break;
-                case ANIMATION_DOWN:
-
-                    break;
-                case ANIMATION_RIGHT:
-
-                    break;
-            }
-            //с какой скоростью должна двигаться фигура за 1 мс
-            int distance=(mRectSide*4)/(animDuration.intValue()/1000);
-            int knightPath=0;
-            //создаем таймер, который будет ждать столько, сколько длиться анимация загрузки
+            mAnimateRun=true;
+            //создаем таймер, который будет двигать фигуру на n пикселей 
             final Timer timer= new Timer();
+            //Задача для таймера
             TimerChess timerTask= new TimerChess(mArrayIndex1, mArrayIndex2, 1, 2, 1);
-
+            //Устанавлиаеим таймеру задачу, которая будет выполняться каждые n милисекунд
             timer.schedule(timerTask, 1, 1);
             }
-
+        return mAnimateRun;
     }
-
+    
+    /**
+     * Устанавливает обработчик
+     *
+     * @param handler  - обработчик
+     */    
     public void setHandler(HandlerPermissionStart handler){
          mHandler=handler;
     }
 
+    /**
+     * Класс-задатчик для таймера
+     * определяет в какую сторону и на какое расстояние двинуть коня по доске
+     */  
     private class TimerChess extends TimerTask {
         private int mArrayInd1;
         private int mArrayInd2;
@@ -348,28 +391,30 @@ public class DarwRectView extends View{
                     mYposition,
                     mXposition,
                     mYposition+mRectSide);
-
+            
             if((mArrayIndexStop1-mArrayInd1%2)==1){
                 if(mXposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]){
-                    if(mArrayIndexStop1<mArrayInd1)mDistance=~mDistance;
+                    if(mArrayIndexStop1<mArrayInd1 & mDistance>0)mDistance=~mDistance;
                     mXposition+=mDistance;
                 }else {
-                    if(mArrayIndexStop2<mArrayInd2 | mDistance<0)mDistance=~mDistance;
+                    if(mArrayIndexStop2<mArrayInd2 & mDistance>0)mDistance=~mDistance;
                     mYposition+=mDistance;
                     if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]==(mYposition+mDistance)){
+                        mAnimateRun=false;
                         this.cancel();
-                    }
+                      }
                 }
 
             }
             if((mArrayIndexStop2-mArrayInd2%2)==1){
                 if(mYposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]){
-                    if(mArrayIndexStop2<mArrayInd2)mDistance=~mDistance;
+                    if(mArrayIndexStop2<mArrayInd2 & mDistance>0)mDistance=~mDistance;
                     mYposition+=mDistance;
                 }else {
-                    if(mArrayIndexStop1<mArrayInd1 | mDistance<0)mDistance=~mDistance;
+                    if(mArrayIndexStop1<mArrayInd1 & mDistance>0)mDistance=~mDistance;
                     mXposition+=mDistance;
                     if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]==(mXposition+mDistance)){
+                        mAnimateRun=false;
                         this.cancel();
                     }
                 }
@@ -377,6 +422,7 @@ public class DarwRectView extends View{
 
             postInvalidate();
         }
+
     }
 
 }
