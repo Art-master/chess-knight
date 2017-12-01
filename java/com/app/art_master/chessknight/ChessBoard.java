@@ -11,33 +11,40 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 
+/**
+ * Начальный клас для отрисовки основного интерфейса
+ * Created by Art-_-master
+ */
 public class ChessBoard extends AppCompatActivity implements HandlerPermissionStart {
-
+    
+     /** разметка для расположения шахматной доски */
     FrameLayout chessBoard;
 
+    /** поле ввода количества горизонтальных линий в шахматной доске*/
     EditText textNumColumn;
-
+    
+    /** поле ввода количества колонок в шахматной доске*/
     EditText textNumCell;
 
+    /** Кнопка запуска алгоритма ходов коня*/
     Button startButton;
 
+    /** Кнопка останова алгоритма ходов коня*/
     Button stopButton;
 
+    /** Кнопка отрисовки шахм. доски с заданными параметрами*/
     Button viewButton;
 
+    /** Кнопка очистки шахм. доски*/
     Button clearButton;
 
-    int [][] matrixPosition;
-
-    /**Handler для отслеживания действий паралельного потока*/
+    /** Handler для отслеживания действий паралельного потока*/
     private Handler mHandler;
-
-
+    
+    /** Объект с графикой шахматной доски в Canvas'e*/
     public DarwRectView boardSheess;
 
-    int column;
-    int cell;
-
+     /** объект с алгоритмом вычисления пути коня по шахматной доске в другом потоке*/
     KnightDriveThread knightDriveThread;
 
     @Override
@@ -46,16 +53,14 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
         setContentView(R.layout.activity_shess_board);
 
         textNumColumn= (EditText)findViewById(R.id.editTextNumColumn);
-
         textNumCell= (EditText)findViewById(R.id.editTextNumCell);
-
         chessBoard=(FrameLayout) findViewById(R.id.chessBoard);
-
         startButton=(Button) findViewById(R.id.buttonStart);
         stopButton=(Button) findViewById(R.id.buttonStop);
         viewButton=(Button) findViewById(R.id.buttonView);
         clearButton=(Button) findViewById(R.id.buttonClear);
 
+        //Устанавливаем реакцию Handler'a
         mHandler = new Handler(){
 
             @Override
@@ -63,9 +68,11 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 startButton.setEnabled(true);
             }
         };
+        //слушатель для кнопки прорисовки доски
         viewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //если текст есть, забираем его из форм
                 if(!textNumColumn.getText().toString().isEmpty()){
                     column =Integer.parseInt(textNumColumn.getText().toString());
                 }
@@ -73,7 +80,7 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                     cell =Integer.parseInt(textNumCell.getText().toString());
                 }
 
-
+                //запускаем прорисовку шахматной доски, устанавливаем параметры и цепряем обработчик
                 boardSheess =new DarwRectView(getApplicationContext(),null, column, cell,
                         chessBoard.getHeight(), chessBoard.getWidth());
                 boardSheess.setHandler(ChessBoard.this);
@@ -81,46 +88,52 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
 
                 chessBoard.addView(boardSheess);
 
+                //активируем и декактивируем кнопки
                 viewButton.setEnabled(false);
                 clearButton.setEnabled(true);
                 stopButton.setEnabled(false);
                 startButton.setEnabled(false);
             }
         });
-
+        
+        //слушатель для кнопки очистки шахматной доски доски
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 chessBoard.removeView(boardSheess);
                 boardSheess=null;
+                
+                 //активируем и декактивируем кнопки
                 viewButton.setEnabled(true);
                 clearButton.setEnabled(false);
                 stopButton.setEnabled(false);
                 startButton.setEnabled(false);
             }
         });
-
+        
+        //слушатель для кнопки запуска алгоритма
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                
+                 //активируем и декактивируем кнопки
                 viewButton.setEnabled(false);
                 clearButton.setEnabled(false);
                 stopButton.setEnabled(true);
                 startButton.setEnabled(false);
 
+                // создаем и запускаем новый поток для вычисления алгоритма 
                 knightDriveThread= new KnightDriveThread(boardSheess);
                 knightDriveThread.run();
-                //boardSheess.animateStepKnightStart(0, 0, 3, 5000L);
-                //boardSheess.drawCircle(0, 0, Color.GREEN, "1");
-
-                //boardSheess.drawCircle(4, 2, Color.RED, "2");
-                //boardSheess.drawCircle(2, 3, Color.CYAN, "3");
             }
         });
 
+        //слушатель для кнопки останова алгоритма
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                
+                 //активируем и декактивируем кнопки
                 viewButton.setEnabled(false);
                 clearButton.setEnabled(true);
                 stopButton.setEnabled(false);
