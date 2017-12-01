@@ -3,67 +3,55 @@ package com.app.art_master.chessknight;
 import android.graphics.Color;
 
 /**
- * Created by Art-_-master on 21.11.2017.
+ * алгоритм движения коня по шахматной доске
+ * Created by Art-_-master
  */
 
 public class KnightDriveThread implements Runnable {
 
 
-    /**
-     *Массив предыдущих шагов коня
-     */
+    /** Массив предыдущих шагов коня */
     private int [] lastKnightSteps;
-    /**
-     *Установка для массива при ходе коня
-     */
+    
+    /** индекс 1 для массива ходов коня */
     private int initArray1=0;
-    /**
-     *Установка для массива при ходе коня
-     */
+    
+    /** индекс 2 для массива ходов коня */
     private int initArray2=0;
-    /**
-     *Координата x выбранной пользователем начальной позиции коня
-     */
-    private float SetColorOneRectX=0;
-    /**
-     *Координата y выбранной пользователем начальной позиции коня
-     */
-    private float SetColorOneRectY=0;
-    /**
-     *Матрица шахматной доски
-     */
+
+    /** матрица ходов коня по шахматной доске */
     private float[][][] matrixСhessboard;
 
-    /**
-     *Счетчик шагов коня
-     */
+    /** Счетчик шагов коня */
     private int pathKnight=1;
-    /**
-     *Массив-инициатор шагов коня
-     */
+    
+    /** количество горизонтальных линий в шахматной доске */
+    private int column;
+    
+     /** количество колонок в шахматной доске */
+    private int cell;
 
-    int column;
-    int cell;
-
+    /** индекс 1 для массива ходов коня для промежуточных вычислений */
     private int localInit1=0;
+    
+    /** индекс 2 для массива ходов коня для промежуточных вычислений */
     private int localInit2=0;
 
     /**
      *Счетчики и инициаторы
      */
-    private int count=0;
-    private String countTruePath="";
-    private boolean countSetColorOneRect=false;
     private boolean knightMoveControl=false;
-    private boolean chessboardDrawControl=true;
-    private boolean controlTouchButtonLetsGo=false;
     private boolean control=true;
+    
+    /** объект шахматной доски в Canvas и анимации движения коня по доске */
     private DarwRectView mChessboard;
 
+    /** матрица рпзрешенных ходов коня по доске */
     private boolean[][][] matrixSteps;
 
+    //в конструктор передаем объект шахматной доски
     KnightDriveThread(DarwRectView chessBoardObject){
-        //chessBoardObject.animateStepKnightStart(0, 0, 3, 5000L);
+        
         mChessboard=chessBoardObject;
         column=chessBoardObject.mNumCell;
         cell=chessBoardObject.mNumColumn;
@@ -75,6 +63,7 @@ public class KnightDriveThread implements Runnable {
 
     @Override
     public void run() {
+        //запускаем бесконечный цикл
         while (true){
             present();
         }
@@ -82,28 +71,32 @@ public class KnightDriveThread implements Runnable {
 
     /**
      * <paint>
-     * Инициализируем ход коня
+     * Инициализируем алгаритм ходов коня
      * </paint>
      */
     public void present() {
 
         if(knightMoveControl){
+            //количество обработанных алгаритмом ходов коня
             int controlBackStep = 0;
+            //
             int forward =0;
             matrixСhessboard[initArray1][initArray2][2]=1;
             while(control){
 
                 //находим доступные ходы
                 forward = moveKnightInCell(controlBackStep);
-                //count=0;
 
-                // countFalse Разрешает ход назад, если ходить некуда
-                controlBackStep = 0;
+                // перед каждым ходом обнуляем щетчик ходов 
+                //controlBackStep = 0;  // ???? не понятно, зачем он обнуляется
+                //всего 8 возможных ходов коня по доске из заданной точки
+                // i= шаг
                 interrupt: for (int i = 0; i <=8; i++) {
+                    //если текущий шаг не запрещен
                     if (matrixSteps[initArray1][initArray2][i]) {
                         i=forward;
 
-                        // записываем координаты следующей точки
+                        // записываем координаты следующей точки в зависимости от того, куда шагнул конь
                         switch (i) {
                             case 0:
                                 initArray1 += 2;
@@ -157,7 +150,7 @@ public class KnightDriveThread implements Runnable {
                         controlBackStep++;
                         if (controlBackStep == 8) {
 
-                            // oбщую длительность ходов уменьшаем на единицу
+                            // счетчик всех ходов уменьшаем на единицу
                             pathKnight--;
 
                             // Затираем следы (текущую ячейку обнуляем, для
@@ -185,10 +178,11 @@ public class KnightDriveThread implements Runnable {
             drawMoveKnight();
             knightMoveControl=false;
         }
-            count=1;
-            knightMoveControl=true;
-            initArray1=mChessboard.getArrayInitIndex(1);
-            initArray2=mChessboard.getArrayInitIndex(2);
+            
+        //В начале работы алгоритма получаем индексы матрицы, с текущими координатами коня
+        knightMoveControl=true;
+        initArray1=mChessboard.getArrayInitIndex(1);
+        initArray2=mChessboard.getArrayInitIndex(2);
     }
 
     /**
