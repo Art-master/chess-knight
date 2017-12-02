@@ -47,6 +47,10 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
      /** объект с алгоритмом вычисления пути коня по шахматной доске в другом потоке*/
     KnightDriveThread knightDriveThread;
 
+    int cell;
+
+    int column;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +69,14 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
 
             @Override
             public void handleMessage(Message msg) {
-                startButton.setEnabled(true);
+                if(msg.arg2==0){
+                    startButton.setEnabled(true);
+                }
+                if(msg.arg2==3){
+                    if(knightDriveThread!=null & boardSheess!=null){
+                        boardSheess.startAnim(knightDriveThread.getMatrixStepsKnight());
+                    }
+                }
             }
         };
         //слушатель для кнопки прорисовки доски
@@ -123,7 +134,11 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 startButton.setEnabled(false);
 
                 // создаем и запускаем новый поток для вычисления алгоритма 
-                knightDriveThread= new KnightDriveThread(boardSheess);
+                knightDriveThread= new KnightDriveThread(boardSheess.getArrayInitIndex(1),
+                        boardSheess.getArrayInitIndex(2),
+                        boardSheess.mNumCell,
+                        boardSheess.mNumColumn);
+                knightDriveThread.setHandler(ChessBoard.this);
                 knightDriveThread.run();
             }
         });

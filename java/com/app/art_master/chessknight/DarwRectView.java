@@ -12,6 +12,7 @@ import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -81,6 +82,15 @@ public class DarwRectView extends View{
     /** Запущена ли анимация в настоящее время*/
     private boolean mAnimateRun=false;
 
+    private int mTextSize;
+
+
+    //==================================================================================\\
+    private int mStartKnihtArrayIndex1;
+    private int mStartKnihtArrayIndex2;
+    private int mPathKnight;
+    //==================================================================================\\
+
 
     public DarwRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
@@ -98,16 +108,20 @@ public class DarwRectView extends View{
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         //вычисляем размер текста
-        int textSize=getResources().getDimensionPixelSize(R.dimen.fontCanvasText);
+        mTextSize=getResources().getDimensionPixelSize(R.dimen.fontCanvasText);
+
+        int textSize=0;
 
        //Устанавливаем размер текста и размер ячейки шахм. доски
         if(mNumColumn<=mNumCell){
             mRectSide = height/ mNumCell;
-            mPaint.setTextSize(textSize/ mNumCell);
+            textSize=mTextSize/ mNumCell;
         }else{
             mRectSide =height/ mNumColumn;
-            mPaint.setTextSize(textSize/ mNumColumn);
+            textSize=mTextSize/ mNumColumn;
         }
+        mPaint.setTextSize(textSize);
+        mTextSize=textSize;
 
         //объявляем переменные
         mBoardLayer = new Picture();
@@ -166,7 +180,9 @@ public class DarwRectView extends View{
                                     mArrayIndex1 =i;
                                     mArrayIndex2 =i1;
                                     //активируем Handler (активируем кнопку старт)
-                                    mHandler.getHandler().sendEmptyMessage(0);
+                                    Message msg=new Message();
+                                    msg.arg2=0;
+                                    mHandler.getHandler().sendMessage(msg);
                                     //перерисовывам все вместе
                                     invalidate();
                                 }
@@ -287,8 +303,22 @@ public class DarwRectView extends View{
         //черный текст для текста
         mPaint.setColor(Color.BLACK);
         //рисуем текст
-        canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0]+(mRectSide /3),
-                mRectsCoordinates[arrayIndex1][arrayIndex2][1]+(mRectSide /1.4f),  mPaint);
+        float textX=mRectSide /3;
+        float textY=mRectSide /1.4f;
+        if(text.length()==2){
+            textX/=2;
+        }else if(text.length()==3){
+            textX/=4;
+            textY/=1.1f;
+            mPaint.setTextSize(mTextSize/1.3f);
+        }else if(text.length()==4){
+            textX/=8;
+            textY/=1.15f;
+            mPaint.setTextSize(mTextSize/1.5f);
+        }
+        canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0]+textX,
+                mRectsCoordinates[arrayIndex1][arrayIndex2][1]+textY,  mPaint);
+
         //конец записи слоя
         mRectLayer[arrayIndex1][arrayIndex2].endRecording();
         //разрешаем перерисоквку
@@ -392,7 +422,7 @@ public class DarwRectView extends View{
                     mXposition,
                     mYposition+mRectSide);
             
-            if((mArrayIndexStop1-mArrayInd1%2)==1){
+            if((((mArrayIndexStop1+1)-(mArrayInd1+1)%2)&0x01)==1){
                 if(mXposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]){
                     if((mArrayIndexStop2<mArrayInd2 & mDistance>0) || (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
                     mXposition+=mDistance;
@@ -402,12 +432,14 @@ public class DarwRectView extends View{
                     if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]==(mYposition+mDistance)){
                         mAnimateRun=false;
                         this.cancel();
-                        //timer.cancel();
+                        Message msg=new Message();
+                        msg.arg2=3;
+                        mHandler.getHandler().sendMessage(msg);
                         }
                 }
 
             } else
-            if((mArrayIndexStop2-mArrayInd2%2)==1){
+            if((((mArrayIndexStop2+1)-(mArrayInd2+1)%2)&0x01)==1){
                 if(mYposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]){
                     if((mArrayIndexStop1<mArrayInd1 & mDistance>0) || (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
                     mYposition+=mDistance;
@@ -417,7 +449,9 @@ public class DarwRectView extends View{
                     if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]==(mXposition+mDistance)){
                         mAnimateRun=false;
                         this.cancel();
-                        //timer.cancel();
+                        Message msg=new Message();
+                        msg.arg2=3;
+                        mHandler.getHandler().sendMessage(msg);
                     }
                 }
             }
@@ -434,6 +468,33 @@ public class DarwRectView extends View{
             return mArrayIndex2;
         }
         return 0;
+    }
+
+    public void startAnim(int[][][] matrixPosition){
+        if(mPathKnight==0){
+            mPathKnight=1;
+            mStartKnihtArrayIndex1=mArrayIndex1;
+            mStartKnihtArrayIndex2=mArrayIndex2;
+            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.RED, mPathKnight+"");
+            mPathKnight=2;
+        }
+        if(mPathKnight<=(mNumCell*mNumColumn)){
+            i:for (int i1 = 0; i1 <= mNumCell-1; i1++) {
+                for (int i2 = 0; i2 <= mNumColumn-1; i2++) {
+                    if(matrixPosition[i1][i2][0]==mPathKnight){
+                        animateStepKnightStart(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, i1, i2);
+                         mStartKnihtArrayIndex1 =i1;
+                         mStartKnihtArrayIndex2 =i2;
+
+                        drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.RED, mPathKnight+"");
+                         mPathKnight++;
+                        break i;
+                    }
+
+                }
+
+            }
+        }
     }
 
 }
