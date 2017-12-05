@@ -211,7 +211,13 @@ public class KnightDriveThread implements Runnable {
         matrixСhessboard[mInitArray1][mInitArray2][0]=pathKnight;
         //Если путь больше произведения ячеек, закрываем счетчик
         if (pathKnight==(cell*column-1)) {
-
+            for (int y= 0; y <= column-1; y++) {
+                for (int y2 = 0; y2 <= cell - 1; y2++) {
+                    if(matrixСhessboard[y][y2][0]==0){
+                        matrixСhessboard[y][y2][0]=pathKnight+1;
+                    }
+                }
+            }
             control = false;
         }
     }

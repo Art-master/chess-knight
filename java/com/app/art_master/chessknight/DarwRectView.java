@@ -142,57 +142,61 @@ public class DarwRectView extends View{
         this.setOnTouchListener(new DarwRectView.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //если пользователь коснуля экрана и убрал палец
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    //сохраняем координаты
-                    int x=(int)event.getX();
-                    int y=(int)event.getY();
-                    //выполняем вычисления, если касания произошли не за областью доски
-                    if(x<=mWidth & y<=mHeight){
-                        //перебираем матрицу координат ячеек
-                        for(int i = 0; i< mNumCell; i++) {
-                            for (int i1 = 0; i1 < mNumColumn; i1++) {
-                                //если координаты касания пользователя в пределах ячейки, устанавливаем туда коня
-                                if((x > mRectsCoordinates[i][i1][0] &
-                                        x <= mRectsCoordinates[i][i1][0]+mRectSide)
-                                & (y > mRectsCoordinates[i][i1][1] &
-                                        y<=mRectsCoordinates[i][i1][1]+mRectSide))  {
-                                   
-                                    //получаем битовую карту из изображения
-                                    Bitmap knight=getBitmapFromAsset("knight.png");
-                                    //создаем изображение из битовой карты изображения
-                                    imageView = new ImageView(getContext());
-                                    imageView.setImageBitmap(knight);
-                                     //устанавливаем позицию изображения
-                                    imageView.setLeft(mRectsCoordinates[i][i1][0]+mRectSide);
-                                    imageView.setTop(mRectsCoordinates[i][i1][1]);
-                                    imageView.setRight(mRectsCoordinates[i][i1][0]);
-                                    imageView.setBottom(mRectsCoordinates[i][i1][1]+mRectSide);
-                                    //получаем ресурс из изображения
-                                    //устанавливаем границы
-                                    drawable=imageView.getDrawable();
-                                    drawable.setBounds(mRectsCoordinates[i][i1][0]+mRectSide,
-                                            mRectsCoordinates[i][i1][1],
-                                            mRectsCoordinates[i][i1][0],
-                                            mRectsCoordinates[i][i1][1]+mRectSide);
+                //если не запущена анимация
+                if (!mAnimateRun) {
+                    //если пользователь коснуля экрана и убрал палец
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        //сохраняем координаты
+                        int x = (int) event.getX();
+                        int y = (int) event.getY();
+                        //выполняем вычисления, если касания произошли не за областью доски
+                        if (x <= mWidth & y <= mHeight) {
+                            //перебираем матрицу координат ячеек
+                            for (int i = 0; i < mNumCell; i++) {
+                                for (int i1 = 0; i1 < mNumColumn; i1++) {
+                                    //если координаты касания пользователя в пределах ячейки, устанавливаем туда коня
+                                    if ((x > mRectsCoordinates[i][i1][0] &
+                                            x <= mRectsCoordinates[i][i1][0] + mRectSide)
+                                            & (y > mRectsCoordinates[i][i1][1] &
+                                            y <= mRectsCoordinates[i][i1][1] + mRectSide)) {
 
-                                    //сохраняем текущую позицию коня
-                                    mArrayIndex1 =i;
-                                    mArrayIndex2 =i1;
-                                    //активируем Handler (активируем кнопку старт)
-                                    Message msg=new Message();
-                                    msg.arg2=0;
-                                    mHandler.getHandler().sendMessage(msg);
-                                    //перерисовывам все вместе
-                                    invalidate();
+                                        //получаем битовую карту из изображения
+                                        Bitmap knight = getBitmapFromAsset("knight.png");
+                                        //создаем изображение из битовой карты изображения
+                                        imageView = new ImageView(getContext());
+                                        imageView.setImageBitmap(knight);
+                                        //устанавливаем позицию изображения
+                                        imageView.setLeft(mRectsCoordinates[i][i1][0] + mRectSide);
+                                        imageView.setTop(mRectsCoordinates[i][i1][1]);
+                                        imageView.setRight(mRectsCoordinates[i][i1][0]);
+                                        imageView.setBottom(mRectsCoordinates[i][i1][1] + mRectSide);
+                                        //получаем ресурс из изображения
+                                        //устанавливаем границы
+                                        drawable = imageView.getDrawable();
+                                        drawable.setBounds(mRectsCoordinates[i][i1][0] + mRectSide,
+                                                mRectsCoordinates[i][i1][1],
+                                                mRectsCoordinates[i][i1][0],
+                                                mRectsCoordinates[i][i1][1] + mRectSide);
+
+                                        //сохраняем текущую позицию коня
+                                        mArrayIndex1 = i;
+                                        mArrayIndex2 = i1;
+                                        //активируем Handler (активируем кнопку старт)
+                                        Message msg = new Message();
+                                        msg.arg2 = 0;
+                                        mHandler.getHandler().sendMessage(msg);
+                                        //перерисовывам все вместе
+                                        invalidate();
+                                    }
                                 }
                             }
                         }
+                        return true;
+                    } else {
+                        return false;
                     }
-                    return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
         });
 

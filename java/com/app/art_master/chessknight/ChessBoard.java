@@ -1,6 +1,5 @@
 package com.app.art_master.chessknight;
 
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -29,8 +28,6 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
     /** Кнопка запуска алгоритма ходов коня*/
     Button startButton;
 
-    /** Кнопка останова алгоритма ходов коня*/
-    Button stopButton;
 
     /** Кнопка отрисовки шахм. доски с заданными параметрами*/
     Button viewButton;
@@ -60,7 +57,6 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
         textNumCell= (EditText)findViewById(R.id.editTextNumCell);
         chessBoard=(FrameLayout) findViewById(R.id.chessBoard);
         startButton=(Button) findViewById(R.id.buttonStart);
-        stopButton=(Button) findViewById(R.id.buttonStop);
         viewButton=(Button) findViewById(R.id.buttonView);
         clearButton=(Button) findViewById(R.id.buttonClear);
 
@@ -86,9 +82,18 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 //если текст есть, забираем его из форм
                 if(!textNumColumn.getText().toString().isEmpty()){
                     column =Integer.parseInt(textNumColumn.getText().toString());
+                    if(column<5 || column > 50){
+                        textNumColumn.setText(getResources().getText(R.string.minCellAndColValue));
+                        column=5;
+                    }
                 }
                 if(!textNumCell.getText().toString().isEmpty()){
                     cell =Integer.parseInt(textNumCell.getText().toString());
+
+                    if(cell<5 || cell > 50){
+                        textNumCell.setText(getResources().getText(R.string.minCellAndColValue));
+                        cell=5;
+                    }
                 }
 
                 //запускаем прорисовку шахматной доски, устанавливаем параметры и цепряем обработчик
@@ -102,7 +107,6 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 //активируем и декактивируем кнопки
                 viewButton.setEnabled(false);
                 clearButton.setEnabled(true);
-                stopButton.setEnabled(false);
                 startButton.setEnabled(false);
             }
         });
@@ -117,7 +121,6 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                  //активируем и декактивируем кнопки
                 viewButton.setEnabled(true);
                 clearButton.setEnabled(false);
-                stopButton.setEnabled(false);
                 startButton.setEnabled(false);
             }
         });
@@ -129,8 +132,7 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 
                  //активируем и декактивируем кнопки
                 viewButton.setEnabled(false);
-                clearButton.setEnabled(false);
-                stopButton.setEnabled(true);
+                clearButton.setEnabled(true);
                 startButton.setEnabled(false);
 
                 // создаем и запускаем новый поток для вычисления алгоритма 
@@ -142,21 +144,6 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 knightDriveThread.run();
             }
         });
-
-        //слушатель для кнопки останова алгоритма
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                
-                 //активируем и декактивируем кнопки
-                viewButton.setEnabled(false);
-                clearButton.setEnabled(true);
-                stopButton.setEnabled(false);
-                startButton.setEnabled(true);
-
-            }
-        });
-
 
     }
 
