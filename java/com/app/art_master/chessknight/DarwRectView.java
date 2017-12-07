@@ -17,6 +17,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -475,13 +476,22 @@ public class DarwRectView extends View{
     }
 
     public void startAnim(int[][][] matrixPosition){
+        if(matrixPosition[0][0][0]==0){
+            Toast toast = Toast.makeText(getContext(), "Ходов не найдено", Toast.LENGTH_LONG);
+            toast.show();
+            return;
+        }
+
         if(mPathKnight==0){
             mPathKnight=1;
             mStartKnihtArrayIndex1=mArrayIndex1;
             mStartKnihtArrayIndex2=mArrayIndex2;
-            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.RED, mPathKnight+"");
+            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(230, 64, 64), mPathKnight+"");
             mPathKnight=2;
+        }else {
+            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(43, 153, 74), mPathKnight+"");
         }
+
         if(mPathKnight<=(mNumCell*mNumColumn)){
             i:for (int i1 = 0; i1 <= mNumCell-1; i1++) {
                 for (int i2 = 0; i2 <= mNumColumn-1; i2++) {
@@ -489,8 +499,6 @@ public class DarwRectView extends View{
                         animateStepKnightStart(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, i1, i2);
                          mStartKnihtArrayIndex1 =i1;
                          mStartKnihtArrayIndex2 =i2;
-
-                        drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.RED, mPathKnight+"");
                          mPathKnight++;
                         break i;
                     }

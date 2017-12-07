@@ -2,9 +2,11 @@ package com.app.art_master.chessknight;
 
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -100,9 +102,9 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 boardSheess =new DarwRectView(getApplicationContext(),null, column, cell,
                         chessBoard.getHeight(), chessBoard.getWidth());
                 boardSheess.setHandler(ChessBoard.this);
-                boardSheess.setLayoutParams(chessBoard.getLayoutParams());
 
-                chessBoard.addView(boardSheess);
+                chessBoard.addView(boardSheess, chessBoard.getWidth(), chessBoard.getHeight());
+
 
                 //активируем и декактивируем кнопки
                 viewButton.setEnabled(false);

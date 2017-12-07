@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Chess Knight</string>
-    <string name="button_start">Start</string>
-    <string name="button_stop">Stop</string>
-    <string name="button_view">View</string>
-    <string name="button_clear">Clear</string>
+    <string name="button_start">Начать</string>
+    <string name="button_view">Построить</string>
+    <string name="button_clear">Очистить</string>
     <string name="minCellAndColValue">5</string>
+    <string name="cell_text_view">линии</string>
+    <string name="col_text_view">колонки</string>
+    <string name="chess_board_text_view">шахматная доска</string>
 </resources>

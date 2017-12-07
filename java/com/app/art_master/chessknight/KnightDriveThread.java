@@ -99,7 +99,10 @@ public class KnightDriveThread implements Runnable {
                 forward = moveKnightInCell(controlBackStep);
 
                 // перед каждым ходом обнуляем щетчик ходов
-                controlBackStep = 0;  // ???? не понятно, зачем он обнуляется
+                controlBackStep = 0;
+                //int[] steps1 ={2, 2,  -2,  -2, 1, -1, 1, -1};
+                //int[] steps2 ={-1, 1,  -1, 1, -2, -2, 2,  2};
+
                 //всего 8 возможных ходов коня по доске из заданной точки
                 // i= шаг
                 interrupt: for (int i = 0; i <=8; i++) {
@@ -124,7 +127,6 @@ public class KnightDriveThread implements Runnable {
                                 mInitArray2 -= 1;
                                 actionToStepKnight(i);
                                 break interrupt;
-
                             case 3:
                                 mInitArray1 -= 2;
                                 mInitArray2 += 1;
@@ -160,8 +162,8 @@ public class KnightDriveThread implements Runnable {
                         // подготавливаемся к ходу назад
                         controlBackStep++;
                         if (controlBackStep == 8) {
-
-                            // счетчик всех ходов уменьшаем на единицу
+                            matrixСhessboard[0][0][0]=0;
+                       /*     // счетчик всех ходов уменьшаем на единицу
                             pathKnight--;
 
                             // Затираем следы (текущую ячейку обнуляем, для
@@ -176,7 +178,7 @@ public class KnightDriveThread implements Runnable {
                                         }
                                     }
                                 }
-                            }
+                            } */
                             // Если ход не удался, ищем в массиве значение с
                             // предыдущим path и переходим на нее
                             // перезаписываем массив ходов коня
