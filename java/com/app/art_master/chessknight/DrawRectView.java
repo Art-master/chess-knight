@@ -1,6 +1,5 @@
 package com.app.art_master.chessknight;
 
-import android.animation.Animator;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -29,7 +28,7 @@ import java.util.TimerTask;
  * Created by Art-_-master.
  */
 
-public class DarwRectView extends View{
+public class DrawRectView extends View{
 
     /** Объект Paint. Устанавливает параметры отрисовки */
     private Paint mPaint;
@@ -93,7 +92,7 @@ public class DarwRectView extends View{
     //==================================================================================\\
 
 
-    public DarwRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
+    public DrawRectView(final Context context, AttributeSet atr, int column, int cell, int height, int width) {
         super(context);
 
         this.setFocusableInTouchMode(true);
@@ -140,7 +139,7 @@ public class DarwRectView extends View{
 
         //устанавливаем слушателя, который при касании какой-то ячейки шахматной доски
         //ставит туда коня и сохраняет координаты этой ячейки
-        this.setOnTouchListener(new DarwRectView.OnTouchListener() {
+        this.setOnTouchListener(new DrawRectView.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 //если не запущена анимация
@@ -489,7 +488,7 @@ public class DarwRectView extends View{
             drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(230, 64, 64), mPathKnight+"");
             mPathKnight=2;
         }else {
-            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(43, 153, 74), mPathKnight+"");
+            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(43, 153, 74), mPathKnight-1+"");
         }
 
         if(mPathKnight<=(mNumCell*mNumColumn)){

@@ -2,11 +2,9 @@ package com.app.art_master.chessknight;
 
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -41,7 +39,7 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
     private Handler mHandler;
     
     /** Объект с графикой шахматной доски в Canvas'e*/
-    public DarwRectView boardSheess;
+    public DrawRectView mBoardChess;
 
      /** объект с алгоритмом вычисления пути коня по шахматной доске в другом потоке*/
     KnightDriveThread knightDriveThread;
@@ -71,8 +69,8 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                     startButton.setEnabled(true);
                 }
                 if(msg.arg2==3){
-                    if(knightDriveThread!=null & boardSheess!=null){
-                        boardSheess.startAnim(knightDriveThread.getMatrixStepsKnight());
+                    if(knightDriveThread!=null & mBoardChess !=null){
+                        mBoardChess.startAnim(knightDriveThread.getMatrixStepsKnight());
                     }
                 }
             }
@@ -99,11 +97,11 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 }
 
                 //запускаем прорисовку шахматной доски, устанавливаем параметры и цепряем обработчик
-                boardSheess =new DarwRectView(getApplicationContext(),null, column, cell,
+                mBoardChess =new DrawRectView(getApplicationContext(),null, column, cell,
                         chessBoard.getHeight(), chessBoard.getWidth());
-                boardSheess.setHandler(ChessBoard.this);
+                mBoardChess.setHandler(ChessBoard.this);
 
-                chessBoard.addView(boardSheess, chessBoard.getWidth(), chessBoard.getHeight());
+                chessBoard.addView(mBoardChess, chessBoard.getWidth(), chessBoard.getHeight());
 
 
                 //активируем и декактивируем кнопки
@@ -117,8 +115,8 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chessBoard.removeView(boardSheess);
-                boardSheess=null;
+                chessBoard.removeView(mBoardChess);
+                mBoardChess =null;
                 
                  //активируем и декактивируем кнопки
                 viewButton.setEnabled(true);
@@ -138,10 +136,10 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
                 startButton.setEnabled(false);
 
                 // создаем и запускаем новый поток для вычисления алгоритма 
-                knightDriveThread= new KnightDriveThread(boardSheess.getArrayInitIndex(1),
-                        boardSheess.getArrayInitIndex(2),
-                        boardSheess.mNumCell,
-                        boardSheess.mNumColumn);
+                knightDriveThread= new KnightDriveThread(mBoardChess.getArrayInitIndex(1),
+                        mBoardChess.getArrayInitIndex(2),
+                        mBoardChess.mNumCell,
+                        mBoardChess.mNumColumn);
                 knightDriveThread.setHandler(ChessBoard.this);
                 knightDriveThread.run();
             }
