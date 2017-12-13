@@ -89,6 +89,11 @@ public class KnightDriveThread implements Runnable {
             matrixChessBoard[mInitArray1][mInitArray2][0]=1;
             while(mControl){
 
+                /*
+                  *
+                  *
+                  *
+                  * */
                 int[] steps1 ={2, 2,  -2,  -2, 1, -1, 1, -1};
                 int[] steps2 ={-1, 1,  -1, 1, -2, -2, 2,  2};
 
@@ -183,6 +188,7 @@ public class KnightDriveThread implements Runnable {
         int a = 0;
         int t = 0;
         int valuePath = 8;
+
         for (int y = 0; y <= mColumn -1; y++) {
             for (int y2 = 0; y2 <= mCell -1; y2++) {
                 for (int y3 = 0; y3 <= 7; y3++) {
@@ -190,6 +196,7 @@ public class KnightDriveThread implements Runnable {
                 }
             }
         }
+        //запускаем цикл, в котором проверяем возможные шаги коня
         for (int i = 0; i <= 7; i++) {
             if (mInitArray1 + steps1[i] > mColumn - 1 || mInitArray1 + steps1[i]<0 ) {
                 mMatrixSteps[mInitArray1][mInitArray2][i] = false;

@@ -482,6 +482,7 @@ public class DrawRectView extends View{
         }
 
         if(mPathKnight==0){
+            this.setFocusableInTouchMode(false);
             mPathKnight=1;
             mStartKnihtArrayIndex1=mArrayIndex1;
             mStartKnihtArrayIndex2=mArrayIndex2;
