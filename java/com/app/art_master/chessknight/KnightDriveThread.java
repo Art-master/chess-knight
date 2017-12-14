@@ -236,6 +236,54 @@ public class KnightDriveThread implements Runnable {
         return a;
 
     }
+    /*
+    private int moveKnightInCell(int controlBackStep, int[] steps1, int[] steps2) {
+        int a = 0xFF; 
+        int t = 0;
+        int valuePath = 8;
+
+      	matrixSteps = new boolean [this.column][this.cell][8];
+		matrixSteps[0][0][0]=false;
+		
+		for (int i = 0; i <= 7; i++) {
+			
+			int stepHorizontal=mInitArray1 + steps1[i];
+			int stepVertical=mInitArray2 + steps2[i];
+			//если шаг коня выходит за границы или конь уже бывал в этой клетке
+			if (!checkStep(stepHorizontal, stepVertical) || mMatrixSteps[mInitArray1][mInitArray2][i]) {
+                mMatrixSteps[mInitArray1][mInitArray2][i] = false;
+			}else if (controlBackStep==8) {
+                int q = mLastKnightSteps[mPathKnight];
+                mMatrixSteps[mInitArray1][mInitArray2][q] = false;
+            }
+			else{
+				//проверяем вес каждого хода коня
+			    mLocalInit1 = mInitArray1 + steps1[i];
+                mLocalInit2 = mInitArray2 + steps2[i];
+                for (int i2 = 0; i2 <= 7; i2++) {
+					//если шаг коня выходит за границы
+					if (!checkStep(mLocalInit1, mLocalInit2)) {
+						mMatrixSteps[mLocalInit1][mLocalInit2][i2] = false;
+					//если конь уже бывал в этой клетке
+					else if(mMatrixSteps[mInitArray1][mInitArray2][i2]){
+						t++;
+					}else{
+						mMatrixSteps[mInitArray1][mInitArray2][i2]=true;
+					}
+				}	
+			}
+			//выбираем клетку с наименьшим весом, но вес должен быть больше ноля
+            if (t < valuePath & t>0) {
+                valuePath = t;
+                a=i;
+            }
+            t=0;			
+		}
+		//если ходов никаких не обнаружено, то функция вернет 0xFF,
+		//в ином случае вернет номер хода
+		return a;
+		}
+    */
 
     /**
      * Устанавливает обработчик
