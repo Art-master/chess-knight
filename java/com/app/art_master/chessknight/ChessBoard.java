@@ -168,7 +168,7 @@ public class ChessBoard extends AppCompatActivity implements HandlerPermissionSt
 
     public void showMessage(){
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Значение должно быть \n не меньше 0 и не больше 50", Toast.LENGTH_LONG);
+                "Значение должно быть \n не меньше 5 и не больше 50", Toast.LENGTH_LONG);
         toast.show();
     }
 }
