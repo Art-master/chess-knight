@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">Chess Knight</string>
+    <!-- Кнопки -->
     <string name="button_start">Начать</string>
     <string name="button_view">Построить</string>
     <string name="button_clear">Очистить</string>
+    <!-- Минимальные значения -->
     <string name="minCellAndColValue">5</string>
+    <string name="maxCellAndColValue">50</string>
+
+    <!-- Элемент интерфейса -->
     <string name="text_view">x</string>
+
     <string name="chess_board_text_view">шахматная доска</string>
 </resources>

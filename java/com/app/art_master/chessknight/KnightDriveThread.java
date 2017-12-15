@@ -7,7 +7,7 @@ import android.os.Message;
  * Created by Art-_-master
  */
 
-public class KnightDriveThread implements Runnable {
+class KnightDriveThread implements Runnable {
 
 
     /** Массив предыдущих шагов коня */
@@ -31,12 +31,6 @@ public class KnightDriveThread implements Runnable {
     /** количество колонок в шахматной доске */
     private int mCell;
 
-    /** индекс 1 для массива ходов коня для промежуточных вычислений */
-    private int mLocalInit1 =0;
-
-    /** индекс 2 для массива ходов коня для промежуточных вычислений */
-    private int mLocalInit2 =0;
-
     /**
      *Счетчики и инициаторы
      */
@@ -46,6 +40,9 @@ public class KnightDriveThread implements Runnable {
 
     /** Handler для отслеживания действий паралельного потока*/
     private HandlerPermissionStart mHandler;
+
+    /** константа, свидетельствующая о том, что коню ходить некуда*/
+    final int NOT_MOVE_KNIGHT=0xFF;
 
     //в конструктор передаем объект шахматной доски
     KnightDriveThread(int initArray1, int initArray2, int numCell, int numColumn){
@@ -73,7 +70,7 @@ public class KnightDriveThread implements Runnable {
      * Инициализируем алгаритм ходов коня
      * </paint>
      */
-    public void present() {
+    private void present() {
 
         if(mKnightMoveControl){
             int forward;
@@ -85,7 +82,7 @@ public class KnightDriveThread implements Runnable {
 
                 //находим доступные ходы
                 forward = moveKnightInCell(steps1, steps2);
-                if(forward==0xFF){
+                if(forward==NOT_MOVE_KNIGHT){
                     matrixChessBoard[0][0][0]=0;
                     break;
                 }
@@ -93,39 +90,9 @@ public class KnightDriveThread implements Runnable {
                 mInitArray1 += steps1[forward];
                 mInitArray2 += steps2[forward];
                 actionToStepKnight(forward);
-                // перед каждым ходом обнуляем щетчик ходов
-                //controlBackStep = 0;
-
-             /*           // Если по окончания цикла, ходов не обнаружено,
-                        // подготавливаемся к ходу назад
-                        controlBackStep++;
-                        if (controlBackStep == 7) {
-                            //matrixChessBoard[0][0][0]=0;
-                       /*     // счетчик всех ходов уменьшаем на единицу
-                            mPathKnight--;
-
-                            // Затираем следы (текущую ячейку обнуляем, для
-                            // возможности альтернативного хода)
-                            if (matrixChessBoard[mInitArray1][mInitArray2][0] !=1) {
-                                matrixChessBoard[mInitArray1][mInitArray2][0] = 0;
-                                for (int i1 = 0; i1 <= mColumn - 1; i1++) {
-                                    for (int i2 = 0; i2 <= mCell - 1; i2++) {
-                                        if (matrixChessBoard[i1][i2][0] == mPathKnight) {
-                                            mInitArray1 = i1;
-                                            mInitArray2 = i2;
-                                        }
-                                    }
-                                }
-                            }
-                            // Если ход не удался, ищем в массиве значение с
-                            // предыдущим path и переходим на нее
-                            // перезаписываем массив ходов коня
-                           // break interrupt;
-                        }
-                    }
-
-                }*/
             }
+
+            //отправляем сообщение в родительский поток
             Message msg=new Message();
             msg.arg2=3;
             mHandler.getHandler().sendMessage(msg);
@@ -142,7 +109,7 @@ public class KnightDriveThread implements Runnable {
      * @param i
      *            текущий номер хода коня
      */
-    public void actionToStepKnight(int i){
+    private void actionToStepKnight(int i){
 
         mLastKnightSteps[mPathKnight]=i;
         // Метка пути(указывает текущее местоположение коня) Увеличиваем при каждом шаге
@@ -162,8 +129,14 @@ public class KnightDriveThread implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param steps1 массив 1 с возможными ходами коня
+     * @param steps2 массив 2 с возможными ходами коня
+     * @return номер хода
+     */
     private int moveKnightInCell(int[] steps1, int[] steps2) {
-        int a = 0xff;
+        int a = NOT_MOVE_KNIGHT;
         int t = 0;
         int valuePath = 8;
 
@@ -175,8 +148,10 @@ public class KnightDriveThread implements Runnable {
             if (checkStep(stepHorizontal, stepVertical)) {
                 //проверяем вес каждого хода коня
                 for (int i2 = 0; i2 <= 7; i2++) {
-                    mLocalInit1 = stepHorizontal + steps1[i2];
-                    mLocalInit2 = stepVertical + steps2[i2];
+                    // индекс 1 для массива ходов коня для промежуточных вычислений
+                     int mLocalInit1= stepHorizontal + steps1[i2];
+                    // индекс 2 для массива ходов коня для промежуточных вычислений
+                     int mLocalInit2 = stepVertical + steps2[i2];
                     //если шаг коня выходит за границы
                     if (checkStep(mLocalInit1, mLocalInit2)) {
                         t++;
@@ -195,17 +170,17 @@ public class KnightDriveThread implements Runnable {
         return a;
     }
 
-    private boolean checkStep(int stepHorizontal, int stepVertical){
+    /**
+     *
+     * @param stepHorizontal шаг по горизонтали
+     * @param stepVertical шаг по вертикали
+     * @return true если ход разрешен и не выходит за границы и не было хода в эту клетку раньше
+     */
+    private boolean checkStep(int stepHorizontal, int stepVertical) {
         boolean q;
-        if (stepHorizontal > mColumn - 1 || stepHorizontal < 0) {
-            q= false;
-        }else if(stepVertical < 0 || stepVertical> mCell - 1){
-            q= false;
-        }else if(matrixChessBoard[stepHorizontal][stepVertical][0]>0){
-            q= false;
-        }else{
-            q= true;
-        }
+        q = !(stepHorizontal > mColumn - 1 || stepHorizontal < 0) &&
+                !(stepVertical < 0 || stepVertical > mCell - 1)
+                && matrixChessBoard[stepHorizontal][stepVertical][0] <= 0;
         return q;
     }
 
@@ -214,11 +189,15 @@ public class KnightDriveThread implements Runnable {
      *
      * @param handler  - обработчик
      */
-    public void setHandler(HandlerPermissionStart handler){
+    void setHandler(HandlerPermissionStart handler){
         mHandler=handler;
     }
 
-    public int[][][] getMatrixStepsKnight(){
+/**
+ * Устанавливает обработчик
+ * @return матрицу с ходами коня
+ */
+    int[][][] getMatrixStepsKnight(){
         return matrixChessBoard;
     }
 }

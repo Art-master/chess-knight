@@ -36,9 +36,6 @@ public class DrawRectView extends View{
     /** Отрисовывает поля для хода на шахматной доске */
     private Rect mRect;
 
-    /** Отрисовывает метки на полях для хода */
-    //private Ova mCircle;
-
     /** Количество столбцов в доске */
     public int mNumColumn;
 
@@ -46,7 +43,7 @@ public class DrawRectView extends View{
     public int mNumCell;
 
     /** Координаты полей для хода */
-    public static int [][][] mRectsCoordinates;
+    public static int [][][] mRectCoordinates;
 
     /** Объект Picture. Для сохранения шахматной доски в доп. слое */
     private Picture mBoardLayer;
@@ -78,16 +75,21 @@ public class DrawRectView extends View{
     /**  Позиция коня в матрице координат */
     private int mArrayIndex2;
 
-    
     /** Запущена ли анимация в настоящее время*/
     private boolean mAnimateRun=false;
 
+    /** Размер текста канваса*/
     private int mTextSize;
 
 
     //==================================================================================\\
-    private int mStartKnihtArrayIndex1;
-    private int mStartKnihtArrayIndex2;
+    /** Позиция коня при выполнении анимации */
+    private int mStartKnightArrayIndex1;
+
+    /** Позиция коня при выполнении анимации */
+    private int mStartKnightArrayIndex2;
+
+    /** Номер хода*/
     private int mPathKnight;
     //==================================================================================\\
 
@@ -110,7 +112,7 @@ public class DrawRectView extends View{
         //вычисляем размер текста
         mTextSize=getResources().getDimensionPixelSize(R.dimen.fontCanvasText);
 
-        int textSize=0;
+        int textSize;
 
        //Устанавливаем размер текста и размер ячейки шахм. доски
         if(mNumColumn<=mNumCell){
@@ -130,9 +132,9 @@ public class DrawRectView extends View{
 
         mRect = new Rect();
 
-        mRectsCoordinates = new int[cell][column][2];
+        mRectCoordinates = new int[cell][column][2];
 
-        mRectsCoordinates[0][0][0]=0;
+        mRectCoordinates[0][0][0]=0;
 
         //рисуем шахматную доску
         drawBoard(width, height);
@@ -155,10 +157,10 @@ public class DrawRectView extends View{
                             for (int i = 0; i < mNumCell; i++) {
                                 for (int i1 = 0; i1 < mNumColumn; i1++) {
                                     //если координаты касания пользователя в пределах ячейки, устанавливаем туда коня
-                                    if ((x > mRectsCoordinates[i][i1][0] &
-                                            x <= mRectsCoordinates[i][i1][0] + mRectSide)
-                                            & (y > mRectsCoordinates[i][i1][1] &
-                                            y <= mRectsCoordinates[i][i1][1] + mRectSide)) {
+                                    if ((x > mRectCoordinates[i][i1][0] &
+                                            x <= mRectCoordinates[i][i1][0] + mRectSide)
+                                            & (y > mRectCoordinates[i][i1][1] &
+                                            y <= mRectCoordinates[i][i1][1] + mRectSide)) {
 
                                         //получаем битовую карту из изображения
                                         Bitmap knight = getBitmapFromAsset("knight.png");
@@ -166,17 +168,17 @@ public class DrawRectView extends View{
                                         imageView = new ImageView(getContext());
                                         imageView.setImageBitmap(knight);
                                         //устанавливаем позицию изображения
-                                        imageView.setLeft(mRectsCoordinates[i][i1][0] + mRectSide);
-                                        imageView.setTop(mRectsCoordinates[i][i1][1]);
-                                        imageView.setRight(mRectsCoordinates[i][i1][0]);
-                                        imageView.setBottom(mRectsCoordinates[i][i1][1] + mRectSide);
+                                        imageView.setLeft(mRectCoordinates[i][i1][0] + mRectSide);
+                                        imageView.setTop(mRectCoordinates[i][i1][1]);
+                                        imageView.setRight(mRectCoordinates[i][i1][0]);
+                                        imageView.setBottom(mRectCoordinates[i][i1][1] + mRectSide);
                                         //получаем ресурс из изображения
                                         //устанавливаем границы
                                         drawable = imageView.getDrawable();
-                                        drawable.setBounds(mRectsCoordinates[i][i1][0] + mRectSide,
-                                                mRectsCoordinates[i][i1][1],
-                                                mRectsCoordinates[i][i1][0],
-                                                mRectsCoordinates[i][i1][1] + mRectSide);
+                                        drawable.setBounds(mRectCoordinates[i][i1][0] + mRectSide,
+                                                mRectCoordinates[i][i1][1],
+                                                mRectCoordinates[i][i1][0],
+                                                mRectCoordinates[i][i1][1] + mRectSide);
 
                                         //сохраняем текущую позицию коня
                                         mArrayIndex1 = i;
@@ -240,12 +242,12 @@ public class DrawRectView extends View{
             //В цикле происходит построение шаматного поля с записью координат в матрицу
             for(int i = 0; i< mNumCell; i++) {
                 for (int i1 = 0; i1 < mNumColumn; i1++) {
-                    mRectsCoordinates[i][i1][0]= mRectsCoordinates[i][i1][0]+ mRectSide *i1;
-                    mRectsCoordinates[i][i1][1]= mRectsCoordinates[i][i1][1]+ mRectSide *i;
-                    mRect.set(mRectsCoordinates[i][i1][0],
-                            mRectsCoordinates[i][i1][1] + mRectSide,
-                            mRectsCoordinates[i][i1][0] + mRectSide,
-                            mRectsCoordinates[i][i1][1]);
+                    mRectCoordinates[i][i1][0]= mRectCoordinates[i][i1][0]+ mRectSide *i1;
+                    mRectCoordinates[i][i1][1]= mRectCoordinates[i][i1][1]+ mRectSide *i;
+                    mRect.set(mRectCoordinates[i][i1][0],
+                            mRectCoordinates[i][i1][1] + mRectSide,
+                            mRectCoordinates[i][i1][0] + mRectSide,
+                            mRectCoordinates[i][i1][1]);
 
                    //Определяет цвет шахматных полей
                     if (i%2==0) {
@@ -295,10 +297,10 @@ public class DrawRectView extends View{
         //начало записи слоя
         Canvas canvas = mRectLayer[arrayIndex1][arrayIndex2].beginRecording(mWidth, mHeight);
         //устанавливаем границы примоугольника
-        mRect.set(mRectsCoordinates[arrayIndex1][arrayIndex2][0],
-                mRectsCoordinates[arrayIndex1][arrayIndex2][1] + mRectSide,
-                mRectsCoordinates[arrayIndex1][arrayIndex2][0] + mRectSide,
-                mRectsCoordinates[arrayIndex1][arrayIndex2][1]);
+        mRect.set(mRectCoordinates[arrayIndex1][arrayIndex2][0],
+                mRectCoordinates[arrayIndex1][arrayIndex2][1] + mRectSide,
+                mRectCoordinates[arrayIndex1][arrayIndex2][0] + mRectSide,
+                mRectCoordinates[arrayIndex1][arrayIndex2][1]);
         //цвет примоугольника
         mPaint.setColor(color);
         RectF rectF= new RectF(mRect);
@@ -320,8 +322,8 @@ public class DrawRectView extends View{
             textY/=1.15f;
             mPaint.setTextSize(mTextSize/1.5f);
         }
-        canvas.drawText(text, mRectsCoordinates[arrayIndex1][arrayIndex2][0]+textX,
-                mRectsCoordinates[arrayIndex1][arrayIndex2][1]+textY,  mPaint);
+        canvas.drawText(text, mRectCoordinates[arrayIndex1][arrayIndex2][0]+textX,
+                mRectCoordinates[arrayIndex1][arrayIndex2][1]+textY,  mPaint);
 
         //конец записи слоя
         mRectLayer[arrayIndex1][arrayIndex2].endRecording();
@@ -367,7 +369,6 @@ public class DrawRectView extends View{
      * @param arrayIndex2 - начальная координата 2 метки в матрице
      * @param arrayIndexStop1 - конечная координата 1 метки в матрице
      * @param arrayIndexStop2 - конечная координата 2 метки в матрице
-     * @return запущена ли анимация в данный момент или нет
      */    
     public void animateStepKnightStart(int arrayIndex1, int arrayIndex2, int arrayIndexStop1, int arrayIndexStop2){
         if(drawable!=null & !mAnimateRun) {
@@ -399,13 +400,26 @@ public class DrawRectView extends View{
      * определяет в какую сторону и на какое расстояние двинуть коня по доске
      */  
     private class TimerChess extends TimerTask {
+        /** 1 позиция массива для начала хода коня */
         private int mArrayInd1;
+
+        /** 2 позиция массива для начала хода коня */
         private int mArrayInd2;
+
+        /** Количество пикселей, на которое двигается фигура */
         private int mDistance;
+
+        /** 1 позиция массива для окончания хода коня */
         private int mArrayIndexStop1;
+
+        /** 2 позиция массива для окончания хода коня */
         private int mArrayIndexStop2;
-        private int mXposition;
-        private int mYposition;
+
+        /** Х координата коня */
+        private int mXPosition;
+
+        /** У координата коня */
+        private int mYPosition;
 
 
         TimerChess(int arrayIndex1, int arrayIndex2, int distance, int arrayIndexStop1, int arrayIndexStop2){
@@ -414,26 +428,36 @@ public class DrawRectView extends View{
             mDistance=distance;
             mArrayIndexStop1=arrayIndexStop1;
             mArrayIndexStop2=arrayIndexStop2;
-            mXposition=mRectsCoordinates[mArrayInd1][mArrayInd2][0];
-            mYposition=mRectsCoordinates[mArrayInd1][mArrayInd2][1];
+            mXPosition = mRectCoordinates[mArrayInd1][mArrayInd2][0];
+            mYPosition = mRectCoordinates[mArrayInd1][mArrayInd2][1];
         }
 
         @Override
         public void run() {
 
-            drawable.setBounds(mXposition+mRectSide,
-                    mYposition,
-                    mXposition,
-                    mYposition+mRectSide);
-            
+            //Устанавливаем положение и размер фигуры
+            drawable.setBounds(mXPosition +mRectSide,
+                    mYPosition,
+                    mXPosition,
+                    mYPosition +mRectSide);
+
+            //определяем, в какую сторону должен двигаться конь
+            // 2 клетки влево или вправо и 1 клетка вверх или вниз
             if((((mArrayIndexStop1+1)-(mArrayInd1+1)%2)&0x01)==1){
-                if(mXposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]){
-                    if((mArrayIndexStop2<mArrayInd2 & mDistance>0) || (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
-                    mXposition+=mDistance;
+                if(mXPosition != mRectCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]){
+                    //Определяем, если движение отрицательное, то заставляем фигуру двигаться в обр. напр
+                    if((mArrayIndexStop2<mArrayInd2 & mDistance>0) ||
+                            (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
+                    //смещаем х координату
+                    mXPosition +=mDistance;
                 }else {
-                    if((mArrayIndexStop1<mArrayInd1 & mDistance>0) || (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
-                    mYposition+=mDistance;
-                    if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]==(mYposition+mDistance)){
+                    //Определяем, если движение отрицательное, то заставляем фигуру двигаться в обр. напр
+                    if((mArrayIndexStop1<mArrayInd1 & mDistance>0) ||
+                            (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
+                    //смещаем у координату
+                    mYPosition +=mDistance;
+                    //если конь дошел до нужной точки, отправляем сообщение в вызывавший класс
+                    if(mRectCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]==(mYPosition +mDistance)){
                         mAnimateRun=false;
                         this.cancel();
                         Message msg=new Message();
@@ -441,16 +465,23 @@ public class DrawRectView extends View{
                         mHandler.getHandler().sendMessage(msg);
                         }
                 }
-
             } else
+            // 2 клетки вверх или вниз и 1 клетка влево или вправо
             if((((mArrayIndexStop2+1)-(mArrayInd2+1)%2)&0x01)==1){
-                if(mYposition!=mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]){
-                    if((mArrayIndexStop1<mArrayInd1 & mDistance>0) || (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
-                    mYposition+=mDistance;
+                if(mYPosition != mRectCoordinates[mArrayIndexStop1][mArrayIndexStop2][1]){
+                    //Определяем, если движение отрицательное, то заставляем фигуру двигаться в обр. напр
+                    if((mArrayIndexStop1<mArrayInd1 & mDistance>0) ||
+                            (mArrayIndexStop1>=mArrayInd1 & mDistance<0))mDistance*=-1;
+                    //смещаем у координату
+                    mYPosition +=mDistance;
                 }else {
-                    if((mArrayIndexStop2<mArrayInd2 & mDistance>0) || (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
-                    mXposition+=mDistance;
-                    if(mRectsCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]==(mXposition+mDistance)){
+                    //Определяем, если движение отрицательное, то заставляем фигуру двигаться в обр. напр
+                    if((mArrayIndexStop2<mArrayInd2 & mDistance>0) ||
+                            (mArrayIndexStop2>=mArrayInd2 & mDistance<0))mDistance*=-1;
+                    //смещаем х координату
+                    mXPosition +=mDistance;
+                    //если конь дошел до нужной точки, отправляем сообщение в вызывавший класс
+                    if(mRectCoordinates[mArrayIndexStop1][mArrayIndexStop2][0]==(mXPosition +mDistance)){
                         mAnimateRun=false;
                         this.cancel();
                         Message msg=new Message();
@@ -475,30 +506,38 @@ public class DrawRectView extends View{
     }
 
     public void startAnim(int[][][] matrixPosition){
+        //если первый элемент массива равен 0, то алгаритм не нашел путь
         if(matrixPosition[0][0][0]==0){
-            Toast toast = Toast.makeText(getContext(), "Ходов не найдено", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getContext(),
+                    "Невозможно построить путь\n из данной точки", Toast.LENGTH_LONG);
             toast.show();
             return;
         }
 
+        //инициализируем индексы и рисуем первый круг для начала пути коня
         if(mPathKnight==0){
-            this.setFocusableInTouchMode(false);
             mPathKnight=1;
-            mStartKnihtArrayIndex1=mArrayIndex1;
-            mStartKnihtArrayIndex2=mArrayIndex2;
-            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(230, 64, 64), mPathKnight+"");
+            mStartKnightArrayIndex1 =mArrayIndex1;
+            mStartKnightArrayIndex2 =mArrayIndex2;
+            drawCircle(mStartKnightArrayIndex1, mStartKnightArrayIndex2,
+                    Color.rgb(230, 64, 64), mPathKnight+"");
             mPathKnight=2;
+        //во всех остальных случаях рисуем зеленые круги
         }else {
-            drawCircle(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, Color.rgb(43, 153, 74), mPathKnight-1+"");
+            drawCircle(mStartKnightArrayIndex1, mStartKnightArrayIndex2,
+                    Color.rgb(43, 153, 74), mPathKnight-1+"");
         }
+        //затираем слушателя, чтоб не двигать коня
+        setOnTouchListener(null);
 
+        //ищем в массиве, поочередно, точки, по которым ходил конь рисуем их и выполняем анимацию коня
         if(mPathKnight<=(mNumCell*mNumColumn)){
             i:for (int i1 = 0; i1 <= mNumCell-1; i1++) {
                 for (int i2 = 0; i2 <= mNumColumn-1; i2++) {
                     if(matrixPosition[i1][i2][0]==mPathKnight){
-                        animateStepKnightStart(mStartKnihtArrayIndex1, mStartKnihtArrayIndex2, i1, i2);
-                         mStartKnihtArrayIndex1 =i1;
-                         mStartKnihtArrayIndex2 =i2;
+                        animateStepKnightStart(mStartKnightArrayIndex1, mStartKnightArrayIndex2, i1, i2);
+                         mStartKnightArrayIndex1 =i1;
+                         mStartKnightArrayIndex2 =i2;
                          mPathKnight++;
                         break i;
                     }
